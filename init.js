@@ -1,6 +1,6 @@
 $(document).ready(function(){
 	// draw_hierachical_with_jaccard();
-	// draw_hierachical_with_euclidean();
+	draw_hierachical_with_euclidean();
 	draw_kmean_with_euclidean();
 });
 /*
@@ -44,7 +44,8 @@ function draw_hierachical_with_euclidean(){
 			point : [0.45, 0.30]
 		}
 	}])
-	.dist_fun('centroid')
+	.dist_metric(euclidean_distance)
+	.dist_fun('max')
 	.init()
 	.cluster();
 	
@@ -177,7 +178,7 @@ function draw_kmean_with_euclidean(){
 	])
 	.save_history(true)
 	.stopThreshold(0)
-	.dist_metric(correlation_distance)
+	.dist_metric(euclidean_distance)
 	.cluster();
 
 	var clusters = cluster.clusters();

@@ -1,4 +1,13 @@
 function DrawMatrix(){
+	/*
+	* Data needs to be the following format : 
+	* [[{'value' : 0,
+		'from_name' : '',
+		'from_id' : '',
+		'to_name' : '',
+		'to_id' : ''}, {} ....], 
+	  [...]]
+	*/
 	var data;
 	var container;
 	var width;

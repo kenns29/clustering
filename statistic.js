@@ -1,5 +1,28 @@
 function corr(v){
-
+	if(v.length == 0){
+		return 0;
+	}
+	else if(isArray(v[0])){
+		var SIGMA = cov(v);
+		var standard_dev = std(v);
+		for(var i = 0 ; i < SIGMA.length; i++){
+			for(var j = 0; j < SIGMA.length; j++){
+				if(standard_dev[i] == standard_dev[j] == 0){
+					SIGMA[i][j] = 1;
+				}
+				else if(standard_div[i] == 0 || standard_dev[j] == 0){
+					SIGMA[i][j] = 0;
+				}
+				else{
+					SIGMA[i][j] /= (standard_dev[i] * standard_dev[j]);
+				}
+			}
+		}
+		return SIGMA;
+	}
+	else{
+		return std(v);
+	}
 }
 
 /*

@@ -14,10 +14,10 @@ function kmean_history_list(history){
 		var name = d.name;
 		var centroid = d.value.centroid.reduce(function(pre, cur, ind){
 			if(pre == ''){
-				return pre + cur;
+				return pre + d3.round(cur, 2);
 			}
 			else{
-				return pre + ',' + cur;
+				return pre + ', ' + d3.round(cur, 2);
 			}
 		}, '');
 
@@ -26,7 +26,7 @@ function kmean_history_list(history){
 				return pre + cur.name;
 			}
 			else{
-				return pre + ',' + cur.name;
+				return pre + ', ' + cur.name;
 			}
 		}, '');
 		return 'cluster_name: ' + name + '<br/> centroid: ' + centroid +'<br/> points: ' + points; 
