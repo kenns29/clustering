@@ -1,12 +1,12 @@
 $(document).ready(function(){
-	// draw_hierachical_with_jaccard();
-	draw_hierachical_with_euclidean();
+	draw_hierachical_with_binary_data();
+	// draw_hierachical_with_continous_data();
 	draw_kmean_with_euclidean();
 });
 /*
 * Euclidean distance example
 */
-function draw_hierachical_with_euclidean(){
+function draw_hierachical_with_continous_data(){
 	var cluster = new HierachicalCluster()
 	.data([{
 		name : '1',
@@ -44,7 +44,7 @@ function draw_hierachical_with_euclidean(){
 			point : [0.45, 0.30]
 		}
 	}])
-	.dist_metric(euclidean_distance)
+	.dist_metric(tanimoto_distance)
 	.dist_fun('centroid')
 	.save_history(true)
 	.init()
@@ -60,7 +60,7 @@ function draw_hierachical_with_euclidean(){
 /*
 * Jaccard distance example
 */
-function draw_hierachical_with_jaccard(){
+function draw_hierachical_with_binary_data(){
 		var cluster = new HierachicalCluster()
 	.data([{
 		name : '1',
@@ -109,6 +109,8 @@ function draw_hierachical_with_jaccard(){
 		var sim = (m01 + m10 + m11 > 0) ? m11 / (m01 + m10 + m11) : 1;
 		return 1 - sim;
 	})
+	.save_history(true)
+	.dist_metric(jaccard_distance)
 	.dist_fun('group_average')
 	.init()
 	.cluster();
@@ -117,6 +119,7 @@ function draw_hierachical_with_jaccard(){
 	
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
+	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
 }
 
 function draw_kmean_with_euclidean(){
