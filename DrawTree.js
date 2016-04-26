@@ -12,6 +12,7 @@ function DrawTree(){
 		W = width - margin.left - margin.right;
 		H = height - margin.top - margin.bottom;
 		
+		var circle_size = 20;
 		var svg = d3.select('#' + container).append('svg')
 		.attr('width', width)
 		.attr('height', height);
@@ -25,6 +26,24 @@ function DrawTree(){
 		var nodes = layout.nodes(data);
 		var links = layout.links(nodes);
 		
+		var diagonal = d3.svg.diagonal()
+		.projection(function(d) { 
+			return [d.x, d.y]; 
+		});
+		var linkSel = tree_g.selectAll('.link')
+		.data(links);
+		
+		var linkEnter = linkSel
+		.enter()
+		.append('path')
+		.attr('class', 'link')
+		.attr('stroke', 'black')
+		.attr('stroke-width', 1)
+		.attr('fill', 'none')
+		.attr('d', function(d){
+			return diagonal(d);
+		});
+
 		var nodeSel = tree_g.selectAll('g.node')
 		.data(nodes, function(d){return d.id;});
 		
@@ -35,16 +54,25 @@ function DrawTree(){
 		});
 		
 		nodeEnter.append('circle')
-		.attr('cx', 0).attr('cy', 0).attr('r', 5)
+		.attr('cx', 0).attr('cy', 0).attr('r', circle_size / 2)
+		.attr('fill', 'white')
 		.attr('stroke', 'black').attr('stroke-width', 1);
 		
+		nodeEnter.append('text')
+		.attr('font-size', circle_size * 3 / 4)
+		.attr('dominant-baseline', 'middle')
+		.attr('text-anchor', 'middle')
+		.text(function(d){
+			return d.name;
+		})
+
 		nodeEnter.filter(function(d){
 			return (!d.children) || (d.children.length == 0);
 		})
 		.append('text')
 		.attr('text-anchor', 'middle')
 		.attr('dominant-baseline', 'hanging')
-		.attr('y', 9)
+		.attr('y', circle_size /2 + 4)
 		.attr('font-size', 10)
 		.text(function(d){
 			return d.name;
@@ -63,10 +91,7 @@ function DrawTree(){
 				// return (pre == '') ? cur : pre + ',' + cur;
 			// }, '');
 		// });
-		var diagonal = d3.svg.diagonal()
-		.projection(function(d) { 
-			return [d.x, d.y]; 
-		});
+		
 		
 		nodeEnter.filter(function(d){
 			return (d.children) && (d.children.length > 0)
@@ -74,23 +99,10 @@ function DrawTree(){
 		.append('text')
 		.attr('text-anchor', 'start')
 		.attr('dominant-baseline', 'middle')
-		.attr('x', 5)
+		.attr('x', circle_size / 2 + 4)
 		.attr('font-size', 10)
 		.text(function(d){
 			return d3.round(d.metric, 2);
-		});
-		var linkSel = tree_g.selectAll('.link')
-		.data(links);
-		
-		var linkEnter = linkSel
-		.enter()
-		.append('path')
-		.attr('class', 'link')
-		.attr('stroke', 'black')
-		.attr('stroke-width', 1)
-		.attr('fill', 'none')
-		.attr('d', function(d){
-			return diagonal(d);
 		});
 		
 	};

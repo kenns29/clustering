@@ -19,8 +19,15 @@ function HierachicalCluster(){
 		return d.value.point;
 	};
 	
-	
-	
+	/*
+	* Stores the history of pairs
+	*/
+	var history_pairs = [];
+
+	/*
+	* Flag to indicate whether to save history during execution
+	*/
+	var save_history = false;
 	/*
 	* distance metric for two points, the default is Euclidean distance
 	*/
@@ -95,7 +102,6 @@ function HierachicalCluster(){
 		topPairs.sort(function(a, b){
 			return a.dist - b.dist;
 		});
-		
 		topPairMap = d3.map(topPairs, function(d){
 			return d.id;
 		});
@@ -104,6 +110,8 @@ function HierachicalCluster(){
 	
 	this.cluster = function(){
 		while(topNodes.length > 1){
+			if(save_history)
+				history_pairs.push(JSON.parse(JSON.stringify(topPairs)));
 			var pair = topPairs[0];
 			join(pair.from, pair.to);
 		}
@@ -111,30 +119,93 @@ function HierachicalCluster(){
 		return this;
 	};
 	
-	this.pairToMatrix = function(pairs){
+	// this.pairToMatrix = function(pairs){
+	// 	var matrix = [];
+	// 	pairs.forEach(function(d){
+	// 		if(!matrix[d.from.id]) matrix[d.from.id] = [];
+	// 		if(!matrix[d.to.id]) matrix[d.to.id] = [];
+	// 		matrix[d.from.id][d.to.id] = {
+	// 			'value' : d.dist,
+	// 			'from_name' : d.from.name,
+	// 			'from_id' : d.from.id,
+	// 			'to_name' : d.to.name,
+	// 			'to_id' : d.to.id
+	// 		};
+	// 		matrix[d.to.id][d.from.id] = {
+	// 			'value' : d.dist,
+	// 			'from_name' : d.to.name,
+	// 			'from_id' : d.to.id,
+	// 			'to_name' : d.from.name,
+	// 			'to_id' : d.from.id
+	// 		};
+	// 		if(!matrix[d.from.id][d.from.id]){
+	// 			matrix[d.from.id][d.from.id] = {
+	// 				'value' : 0,
+	// 				'from_name' : d.from.name,
+	// 				'from_id' : d.from.id,
+	// 				'to_name' : d.from.name,
+	// 				'to_id' : d.from.id
+	// 			};
+	// 		}
+	// 		if(!matrix[d.to.id][d.to.id]){
+	// 			matrix[d.to.id][d.to.id] = {
+	// 				'value' : 0,
+	// 				'from_name' : d.to.name,
+	// 				'from_id' : d.to.id,
+	// 				'to_name' : d.to.name,
+	// 				'to_id' : d.to.id
+	// 			};
+	// 		}
+			
+	// 	});
+	// 	return matrix;
+	// };
+
+	this.pair2matrix = function(pairs){
+		var ps = pairs.slice(0);
+		ps.sort(function(a, b){
+			return a.from.id - b.from.id;
+		});
+
 		var matrix = [];
-		pairs.forEach(function(d){
-			if(!matrix[d.from.id]) matrix[d.from.id] = [];
-			if(!matrix[d.to.id]) matrix[d.to.id] = [];
-			matrix[d.from.id][d.to.id] = {
+		var maxIndex = 0;
+		var name2index = d3.map();
+		var to_ps = [];
+
+		ps.forEach(function(d){
+			if(!name2index.has(d.from.id))
+				name2index.set(d.from.id, maxIndex++);
+			if(!name2index.has(d.to.id)){
+				to_ps.push(d);
+			}
+		});
+
+		to_ps.forEach(function(d){
+			if(!name2index.has(d.to.id)){
+				name2index.set(d.to.id, maxIndex++);
+			}
+		});
+		ps.forEach(function(d){
+			var from_index = name2index.get(d.from.id);
+			var to_index = name2index.get(d.to.id);
+			if(!matrix[from_index]) matrix[from_index] = [];
+			if(!matrix[to_index]) matrix[to_index] = [];
+			matrix[from_index][to_index] = {
 				'value' : d.dist,
 				'from_name' : d.from.name,
 				'from_id' : d.from.id,
 				'to_name' : d.to.name,
 				'to_id' : d.to.id
 			};
-			matrix[d.to.id][d.from.id] = {
+			matrix[to_index][from_index] = {
 				'value' : d.dist,
 				'from_name' : d.to.name,
 				'from_id' : d.to.id,
 				'to_name' : d.from.name,
 				'to_id' : d.from.id
 			};
-			if(d.from.id == 5){
-				console.log('here');
-			}
-			if(!matrix[d.from.id][d.from.id]){
-				matrix[d.from.id][d.from.id] = {
+			if(!matrix[from_index][from_index]){
+				matrix[from_index][from_index] = {
 					'value' : 0,
 					'from_name' : d.from.name,
 					'from_id' : d.from.id,
@@ -142,8 +213,8 @@ function HierachicalCluster(){
 					'to_id' : d.from.id
 				};
 			}
-			if(!matrix[d.to.id][d.to.id]){
-				matrix[d.to.id][d.to.id] = {
+			if(!matrix[to_index][to_index]){
+				matrix[to_index][to_index] = {
 					'value' : 0,
 					'from_name' : d.to.name,
 					'from_id' : d.to.id,
@@ -227,6 +298,10 @@ function HierachicalCluster(){
 		return (arguments.length > 0) ? (dist_metric = _, this) : dist_metric;
 	};
 	
+	this.save_history = function(_){
+		return (arguments.length > 0) ? (save_history = _, this) : save_history;
+	};
+
 	this.leafPairs = function(){
 		return leafPairs;
 	};
@@ -239,6 +314,9 @@ function HierachicalCluster(){
 		return pairs;
 	};
 	
+	this.history = function(){
+		return history_pairs;
+	};
 	/*
 	* Using Lance Williams formula to compare clusters between node R and Q,
 	* R is formed by mergin cluster A and B

@@ -15,8 +15,15 @@ function DrawMatrix(){
 	var W;
 	var H;
 	var margin = {right:10, left:10, bottom:20, top:50};
-	
+	/*
+	* Default Matrix row and cell class as accessor
+	*/
+	var row_class = 'matrix-row';
+	var cell_class = 'matrix-cell';
+
 	this.draw = function(){
+		console.log(row_class);
+		console.log(cell_class);
 		width = $('#' + container).width();
 		height = $('#' + container).height();
 		var W = width - margin.left - margin.right;
@@ -29,27 +36,26 @@ function DrawMatrix(){
 		.attr('width', width).attr('height', height);
 		
 		
-		
 		var matrix_g = svg.append('g').attr('transform', function(d, i){
 			return 'translate(' + [margin.left, margin.top] + ')';
 		});
 		
-		var rowSel = matrix_g.selectAll('.matrix-row')
+		var rowSel = matrix_g.selectAll('.' + row_class)
 		.data(data);
 		
 		var rowEnter = rowSel.enter().append('g')
-		.attr('class', 'matrix-row')
+		.attr('class', row_class)
 		.attr('transform', function(d, i){
 			return 'translate(' + [cell_width * i, 0] + ')';
 		});
 		
-		var cellSel = rowEnter.selectAll('.matrix-cell')
+		var cellSel = rowEnter.selectAll('.' + cell_class)
 		.data(function(d, i){
 			return d;
 		});
 		
 		var cellEnter = cellSel.enter().append('g')
-		.attr('class', 'matrix-cell')
+		.attr('class', cell_class)
 		.attr('transform', function(d, i){
 			return 'translate(' + [0, cell_height * i] + ')';
 		});
@@ -114,4 +120,11 @@ function DrawMatrix(){
 		return (arguments.length > 0) ? (container = _, this) : container;
 	};
 	
+	this.row_class = function(_){
+		return (arguments.length > 0) ? (row_class = _, this) : row_class;
+	};
+
+	this.cell_class = function(_){
+		return (arguments.length > 0) ? (cell_class = _, this): cell_class;
+	};
 }

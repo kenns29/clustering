@@ -1,6 +1,6 @@
-function kmean_history_list(history){
+function kmean_output_display(cluster){
 	var liSel = d3.select('#kmean-printout-container').selectAll('li')
-	.data(history);
+	.data(cluster.history());
 
 	var liEnter = liSel.enter().append('li')
 	.attr('class', 'list-group-item');
@@ -29,6 +29,11 @@ function kmean_history_list(history){
 				return pre + ', ' + cur.name;
 			}
 		}, '');
-		return 'cluster_name: ' + name + '<br/> centroid: ' + centroid +'<br/> points: ' + points; 
-	})
+		return 'cluster_name: ' + name + '<br/> centroid: ' + centroid +'<br/> points: ' + points + '<br/> sse: ' + d3.round(d.value.sse, 2);
+	});
+
+	if(cluster.sse())
+		d3.select('#kmean-printout-container').append('li')
+		.attr('class', 'list-group-item')
+		.html('avg sse: ' + d3.round(cluster.sse(), 2));
 }

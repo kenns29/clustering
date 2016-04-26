@@ -45,14 +45,16 @@ function draw_hierachical_with_euclidean(){
 		}
 	}])
 	.dist_metric(euclidean_distance)
-	.dist_fun('max')
+	.dist_fun('centroid')
+	.save_history(true)
 	.init()
 	.cluster();
 	
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
 	
-	var matrix = cluster.pairToMatrix(cluster.pairs());
+	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
+	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
 }
 
 /*
@@ -113,7 +115,7 @@ function draw_hierachical_with_jaccard(){
 	
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
 	
-	var matrix = cluster.pairToMatrix(cluster.pairs());
+	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 }
 
@@ -176,6 +178,7 @@ function draw_kmean_with_euclidean(){
 			}
 		}
 	])
+	.evaluate_sse(true)
 	.save_history(true)
 	.stopThreshold(0)
 	.dist_metric(euclidean_distance)
@@ -184,5 +187,5 @@ function draw_kmean_with_euclidean(){
 	var clusters = cluster.clusters();
 	var history = cluster.history();
 	
-	kmean_history_list(history);
+	kmean_output_display(cluster);
 }
