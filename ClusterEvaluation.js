@@ -39,7 +39,6 @@ function ClusterEvaluation(){
 	this.BSS = function(){
 		var sum = 0;
 		var data_centroid = centroid_of_all_points();
-		console.log('data_centroid', data_centroid);
 		data.forEach(function(d){
 			//obtain points in the cluster
 			var points = points_accessor(d);
@@ -66,7 +65,33 @@ function ClusterEvaluation(){
 		return sum;
 	};
 	
+	this.TSS = function(){
+		var sum = 0;
+		var data_centroid = centroid_of_all_points();
+		data.forEach(function(d){
+			var points = points_accessor(d);
+			if(points.length > 0){
+				var ps = points.map(point_accessor);
+				ps.forEach(function(g){
+					sum += euclidean_distance_square(g, data_centroid);
+				});
+			}
+		});
+		return sum;
+	};
 	
+	this.silhouette_coefficient = function(point, cluster){
+		if(arguments.length == 0){
+			return silhouette_coefficient();
+		}
+		else if(arguments.length == 1){
+			return silhouette_coefficient(point);
+		}
+		else{
+			return silhouette_coefficient(point, cluster);
+		}
+	};
+
 	this.data = function(_){
 		return (arguments.length > 0) ? (data = _, this) : data;
 	};
@@ -130,4 +155,90 @@ function ClusterEvaluation(){
 		}
 		return centroid;
 	};
+
+	function silhouette_coefficient_for_all_points(){
+		var point_silhouette_pairs = [];
+		for(var i = 0; i < data.length; i++){
+			var cluster = data[i];
+			var c_data = points_accessor(cluster);
+			for(var j = 0; j < c_data.length; j++){
+				var point_name = c_data[j].name;
+				var sc = silhouette_coefficient(c_data[j], cluster);
+				point_silhouette_pairs.push({
+					'name' : point_name,
+					'value' : sc
+				});
+			}
+		}
+		return point_silhouette_pairs;
+	}
+
+	function silhouette_coefficient(point, cluster){
+		if(arguments.length == 0){
+			return silhouette_coefficient_for_all_points();
+		}
+		else if(arguments.length == 1){
+			var cluster = (function(){
+				for(var i = 0; i < data.length; i++){
+					var c_data = points_accessor(data[i]);
+					for(var j = 0; j < c_data.length; j++){
+						var point_name = c_data[j].name;
+						if(point_name == point.name){
+							return data[i];
+						}
+					}
+				}
+			})();
+			
+			return silhouette_with_cluster(point_accessor(point), cluster);
+		}
+		else{
+			if(Object.prototype.toString.call(cluster) === '[object String]'){
+				return silhoutte_with_cluster_name(point_accessor(point), cluster);
+			}
+			else{
+				return silhouette_with_cluster(point_accessor(point), cluster)
+			}
+		}
+
+		function silhoutte_with_cluster_name(point, cluster_name){
+			var cluster = null;
+			for(var i = 0; i < data.length; i++){
+				if(cluster_name == data[i].name){
+					cluster = data[i];
+					break;
+				}
+			}
+			return silhouette_with_cluster(point, cluster);
+		}
+
+		function silhouette_with_cluster(point, cluster){
+			var c_data = points_accessor(cluster);
+			var c_points = c_data.map(point_accessor);
+			var a = 0;
+			for(var i = 0; i < c_points.length; i++){
+				var dist = euclidean_distance(point, c_points[i]);
+				a += dist;
+			}
+			a /= c_points.length;
+
+			var b = Infinity;
+			for(var i = 0; i < data.length; i++){
+				if(cluster.name != data[i].name){
+					var o_data = points_accessor(data[i]);
+					var o_points = o_data.map(point_accessor);
+					var sum = 0;
+					o_points.forEach(function(o_point){
+						sum += euclidean_distance(point, o_point);
+					});
+					sum /= o_points.length;
+					if(sum < b){
+						b = sum;
+					}
+				}
+			}
+
+			return (b - a) / Math.max(a, b);
+		}
+	}
 }
