@@ -54,7 +54,10 @@ function KMean(){
 		return Math.sqrt(sum);
 	};
 	
-	
+	var centroid_fun = function(points){
+		return mean(points);
+	};
+
 	this.cluster = function(){
 		/*
 		* Perform kmean clsutering algorithm
@@ -89,18 +92,8 @@ function KMean(){
 			//compute the new centroid
 			clusters.forEach(function(c){
 				if(c.value.points.length > 0){
-					var new_centroid = accessor(c.value.points[0]).slice(0);
-					for(var i = 1; i < c.value.points.length; i++){
-						for(var j = 0; j < new_centroid.length; j++){
-							var point = accessor(c.value.points[i]);
-							new_centroid[j] += point[j];
-						}
-					}
-					//calc the new centroid
-					new_centroid = new_centroid.map(function(d){
-						return d/ c.value.points.length;
-					});
-
+					var points = c.value.points.map(accessor);
+					var new_centroid = centroid_fun(points);
 					//compute the distance between the new centroid and old centoid
 					var dist_moved = euclidean_distance(new_centroid, c.value.centroid);
 					c.value.centroid = new_centroid;
@@ -164,6 +157,28 @@ function KMean(){
 	this.evaluate_sse = function(_){
 		return (arguments.length > 0) ? (evaluate_sse = _, this) : evaluate_sse;
 	};
+	this.centroid_fun = function(_){
+		if(arguments.length == 0){
+			return centroid_fun;
+		}
+		else if(Object.prototype.toString.call(_) === '[object String]'){
+			switch(_){
+				case 'mean' : 
+					centroid_fun = mean;
+					break;
+				case 'median':
+					centroid_fun = median;
+				default:
+					centroid_fun = mean;
+			}
+			return this;
+		}
+		else{
+			centroid_fun = _;
+			return this;
+		}
+	};
+
 	this.history = function(){
 		return history;
 	};
@@ -177,5 +192,42 @@ function KMean(){
 			sum += (a[i] - b[i]) * (a[i] - b[i]);
 		}
 		return Math.sqrt(sum);
+	}
+
+	function mean(v){
+		if(v.length == 0){
+			return 0;
+		}
+		else if(isArray(v[0])){
+			var sum = Array(v[0].length).fill(0);
+			for(var i = 0; i < v.length; i++){
+				for(var j = 0; j < v[i].length; j++){
+					sum[j] += v[i][j];
+				}
+			}
+			return sum.map(function(d){return d/v.length;});
+		}
+		else{
+			var sum = 0;
+			for(var i =0; i < v.length; i++){
+				sum += v[i];
+			}
+			return sum / v.length;
+		}
+	}
+
+	function median(v){
+		if(v.length == 0){
+			return 0;
+		}
+		else if(isArray(v[0])){
+			var vv = v.slice(0);
+			//TODO: implement the incremental estimation of median
+		}
+		else{
+			var vv = v.slice(0);
+			vv.sort(function(a, b){return a - b;});
+			return vv[vv.length / 2];
+		}
 	}
 }

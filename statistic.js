@@ -66,7 +66,7 @@ function variance(v){
 				sum[j] += (v[i][j] - m[j]) * (v[i][j] - m[j]); 
 			}
 		}
-		sum.forEach(function(d){d = d/v.length;});
+		return sum.map(function(d){return d/v.length;});
 	}
 	else{
 		var m = mean(v);
@@ -89,7 +89,7 @@ function mean(v){
 				sum[j] += v[i][j];
 			}
 		}
-		sum.forEach(function(d){ d = d/v.length;});
+		return sum.map(function(d){return d/v.length;});
 	}
 	else{
 		var sum = 0;

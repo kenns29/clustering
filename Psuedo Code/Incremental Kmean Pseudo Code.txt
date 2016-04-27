@@ -1,0 +1,4 @@
+1) Choose K centroids
+2) For each point in the data
+		assign the point the the cluster with centroid of the smallest distance  
+		re-compute the centroid for the cluster

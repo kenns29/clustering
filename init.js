@@ -2,6 +2,7 @@ $(document).ready(function(){
 	draw_hierachical_with_binary_data();
 	// draw_hierachical_with_continous_data();
 	draw_kmean_with_euclidean();
+	evaluation_template();
 });
 /*
 * Euclidean distance example
@@ -184,11 +185,99 @@ function draw_kmean_with_euclidean(){
 	.evaluate_sse(true)
 	.save_history(true)
 	.stopThreshold(0)
+	.accessor(function(d){return d.value.point;})
+	.centroid_fun('mean')
 	.dist_metric(euclidean_distance)
 	.cluster();
 
 	var clusters = cluster.clusters();
+	var wss = new ClusterEvaluation().data(clusters).WSS();
+	var bss = new ClusterEvaluation().data(clusters).BSS();
+	output(pretty_print(clusters));
+	output(wss);
+	output(bss);
 	var history = cluster.history();
 	
 	kmean_output_display(cluster);
+}
+
+function evaluation_template(){
+	var cev = new ClusterEvaluation().data(
+		[
+		  {
+		    "name": "C1",
+		    "value": {
+		      "points": [
+		        {
+		          "name": "1",
+		          "value": {
+		            "point": [
+		              1,
+		              1
+		            ]
+		          }
+		        },
+		        {
+		          "name": "2",
+		          "value": {
+		            "point": [
+		              1.5,
+		              2
+		            ]
+		          }
+		        },
+		        {
+		          "name": "3",
+		          "value": {
+		            "point": [
+		              3,
+		              4
+		            ]
+		          }
+		        },
+		        {
+		          "name": "4",
+		          "value": {
+		            "point": [
+		              5,
+		              7
+		            ]
+		          }
+		        },
+		        {
+		          "name": "5",
+		          "value": {
+		            "point": [
+		              3.5,
+		              5
+		            ]
+		          }
+		        },
+		        {
+		          "name": "6",
+		          "value": {
+		            "point": [
+		              4.5,
+		              5
+		            ]
+		          }
+		        },
+		        {
+		          "name": "7",
+		          "value": {
+		            "point": [
+		              3.5,
+		              4.5
+		            ]
+		          }
+		        }
+		      ]
+		    }
+		  }
+		]
+	);
+
+	output(cev.WSS());
+	output(cev.BSS());
+
 }

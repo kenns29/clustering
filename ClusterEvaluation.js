@@ -17,26 +17,7 @@ function ClusterEvaluation(){
 		return d.value.point;
 	};
 
-	this.centroid_of_all_points = function(){
-		var centroid = null;
-		var numPoints = 0;
-		data.forEach(function(d){
-			var points = points_accessor(d);
-			numPoints += points.length;
-			points.forEach(function(g){
-				if(!centroid){
-					centroid = point_accessor(g).map(function(){return 0;})
-				}
-				centroid.forEach(function(h, i){
-					h+= point[i];
-				});
-			});
-		});
-		centroid.forEach(function(d){
-			d /= numPoints;
-		});
-		return centroid;
-	};
+	this.centroid_of_all_points = centroid_of_all_points;
 
 	this.WSS = function(){
 		var sum = 0;
@@ -58,10 +39,11 @@ function ClusterEvaluation(){
 	this.BSS = function(){
 		var sum = 0;
 		var data_centroid = centroid_of_all_points();
+		console.log('data_centroid', data_centroid);
 		data.forEach(function(d){
 			//obtain points in the cluster
 			var points = points_accessor(d);
-			if(points.length == 0){
+			if(points.length > 0){
 				//obtain the centroid of the cluster, if centroid is not defined, calculate it
 				var centroid = centroid_accessor(d);
 				if(centroid === null || centroid === undefined){
@@ -72,8 +54,9 @@ function ClusterEvaluation(){
 							centroid[i] += point[i];
 						}
 					});
-					centroid.forEach(function(g){
-						g /= points.length;
+					
+					centroid = centroid.map(function(g){
+						return g/points.length;
 					});
 				}
 
@@ -82,7 +65,7 @@ function ClusterEvaluation(){
 		});
 		return sum;
 	};
-
+	
 	
 	this.data = function(_){
 		return (arguments.length > 0) ? (data = _, this) : data;
@@ -113,4 +96,38 @@ function ClusterEvaluation(){
 		return sum;
 	}
 
+	function centroid_of_all_points(){
+		var centroid = null;
+		var numPoints = 0;
+		data.forEach(function(d){
+			var points = points_accessor(d);
+			numPoints += points.length;
+			points.forEach(function(g){
+				var point = point_accessor(g);
+				if(isArray(point)){
+					if(!centroid){
+						centroid = point.map(function(){return 0;})
+					}
+					
+					for(var i = 0; i < centroid.length; i++){
+						centroid[i] += point[i];
+					}
+				}
+				else{
+					if(!centroid)
+						centroid = 0;
+					centroid += point[i];
+				}
+			});
+		});
+		if(isArray(centroid)){
+			centroid = centroid.map(function(d){
+				return d/numPoints;
+			});
+		}
+		else{
+			centroid /= numPoints;
+		}
+		return centroid;
+	};
 }

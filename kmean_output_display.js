@@ -10,7 +10,6 @@ function kmean_output_display(cluster){
 
 	var clusterEnter = clusterSel.enter().append('p')
 	.html(function(d){
-		console.log('d', d);
 		var name = d.name;
 		var centroid = d.value.centroid.reduce(function(pre, cur, ind){
 			if(pre == ''){

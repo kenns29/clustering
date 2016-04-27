@@ -22,8 +22,6 @@ function DrawMatrix(){
 	var cell_class = 'matrix-cell';
 
 	this.draw = function(){
-		console.log(row_class);
-		console.log(cell_class);
 		width = $('#' + container).width();
 		height = $('#' + container).height();
 		var W = width - margin.left - margin.right;
