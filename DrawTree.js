@@ -102,7 +102,7 @@ function DrawTree(){
 		.attr('x', circle_size / 2 + 4)
 		.attr('font-size', 10)
 		.text(function(d){
-			return d3.round(d.metric, 2);
+			return d3.round(d.metric, 4);
 		});
 		
 	};

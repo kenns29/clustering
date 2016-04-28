@@ -45,9 +45,11 @@ function HierachicalCluster(){
 		return lance_williams(R, Q, A, B, 1/2, 1/2, 0, 1/2);
 	};
 	
+	var cut_opt = 'distance';
+
 	/*
 	* root has the following format:
-	* {id: 0, value:{point:[]}, children:[], m:10, metric:1.1}
+	* {id: 0, name, value:{point:[]}, children:[], m:10, metric:1.1}
 	* m is the number of members in the cluster
 	*/
 	var root;
@@ -73,7 +75,8 @@ function HierachicalCluster(){
 				'value':{
 					'point' : accessor(d)
 				},
-				'm' : 1
+				'm' : 1,
+				'metric' : 0
 			};
 		});
 		topNodes = nodes.slice(0);
@@ -119,6 +122,38 @@ function HierachicalCluster(){
 		return this;
 	};
 	
+
+	this.cut = function(threshold){
+		if(cut_opt === 'K'){
+			var nodes = cutByK(threshold);
+		}
+		//cut the tree based on the distance threshold, distance smaller than the threshold form cluster
+		else if(cut_opt === 'distance'){
+			var nodes = cutByDist(threshold);
+		}
+
+		var clusters = [];
+		nodes.forEach(function(n){
+			var leafNodes = getLeafNodes(n);
+			var points = leafNodes.map(function(p){
+				return {
+					name : p.name, 
+					value : {
+						point : p.value.point
+					}
+				}
+			});
+			clusters.push({
+				name : n.name,
+				id : n.id,
+				value : {
+					points : points
+				}
+			});
+		});
+		return clusters;
+	};
+
 	this.pair2matrix = function(pairs){
 		var ps = pairs.slice(0);
 		ps.sort(function(a, b){
@@ -260,6 +295,10 @@ function HierachicalCluster(){
 		return (arguments.length > 0) ? (save_history = _, this) : save_history;
 	};
 
+	this.cut_opt = function(_){
+		return (arguments.length > 0) ? (cut_opt = _, this) : cut_opt;
+	};
+
 	this.leafPairs = function(){
 		return leafPairs;
 	};
@@ -333,21 +372,77 @@ function HierachicalCluster(){
 			: {'id' : n2.id + '-' + n1.id, 'from' : n2, 'to' : n1, 'dist' : dist};
 	}
 	function getLeafNodes(r){
-		nodes = [];
-		getLeafNodesRecurse(r, nodes);
+		var nodes = [];
+		if(arguments.length == 0){
+			getLeafNodesRecurse(root, nodes);
+		}
+		else{
+			getLeafNodesRecurse(r, nodes);
+		}
 		return nodes;
 	}
 	function getLeafNodesRecurse(r, nodes){
 		if(r != null){
-			if(r.children.length == 0){
-				nodes.add(r);
+			if(!r.children || r.children.length == 0){
+				nodes.push(r);
 			}
-			r.children.forEach(function(d){
-				getLeafNodesRecurse(d, nodes);
-			});
+			if(r.children){
+				r.children.forEach(function(d){
+					getLeafNodesRecurse(d, nodes);
+				});
+			}
 		}
 	}
 	
+	function cutByDist(threshold){
+		console.log('root', root);
+		var nodes = [];
+		recurse(root, nodes);
+		return nodes;
+		function recurse(r, nodes){
+			if(r != null){
+				if(r.metric < threshold){
+					nodes.push(r);
+				}
+				else{
+					if(r.children){
+						r.children.forEach(function(child){
+							recurse(child, nodes);
+						});
+					}
+				}
+			}
+		}
+	}
+
+	function cutByK(threshold){
+		var nodes = [root];
+		recurse(nodes);
+		return nodes;
+		function recurse(nodes){
+			if(nodes.length < threshold){
+				var largest_dist = -Infinity;
+				var node_index = -1;
+				for(var i = 0; i < nodes.length; i++){
+					if(nodes[i].metric > largest_dist && nodes[i].children && nodes[i].children.length > 0){
+						largest_dist = nodes[i].metric;
+						node_index = i;
+					}
+				}
+				if(node_index >= 0){
+					var node = nodes[node_index];
+					// console.log('node', node);
+					if(node.children){
+						nodes.splice(node_index, 1);
+						node.children.forEach(function(n){
+							nodes.push(n);
+						})
+					}
+					recurse(nodes);
+				}
+			}
+		}
+	}
 	function pairIndexOf(pair){
 		
 	}

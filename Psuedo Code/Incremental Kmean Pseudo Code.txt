@@ -1,4 +1,8 @@
 1) Choose K centroids
-2) For each point in the data
-		assign the point the the cluster with centroid of the smallest distance  
-		re-compute the centroid for the cluster
+2) Repeat
+	  for each point in the data
+	  	  assign the point in the cluster whose centroid is closest to the point
+	  	  	if the point moved to a new cluster
+	  	  		update the centroid of its old cluster and the new cluster which it moved to
+   until the points in all of the clusters did not change
+

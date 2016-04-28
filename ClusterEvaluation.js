@@ -17,6 +17,9 @@ function ClusterEvaluation(){
 		return d.value.point;
 	};
 
+	//default silhouette distance metric is euclidean
+	var silhouette_dist_metric = euclidean_distance;
+
 	this.centroid_of_all_points = centroid_of_all_points;
 
 	this.WSS = function(){
@@ -103,6 +106,10 @@ function ClusterEvaluation(){
 	};
 	this.centroid_accessor = function(_){
 		return (arguments.length > 0) ? (centroid_accessor = _, this) : centroid_accessor;
+	};
+
+	this.silhouette_dist_metric = function(_){
+		return (arguments.length > 0) ? (silhouette_dist_metric = _, this) : silhouette_dist_metric;
 	};
 
 	function euclidean_distance(a, b){

@@ -113,8 +113,8 @@ function KMean(){
 					d.value.sse = s;
 					sse += s;
 				});
-				if(clusters.length > 0)
-					sse /= clusters.length;
+				// if(clusters.length > 0)
+				// 	sse /= clusters.length;
 			}
 
 			//save the cluster as history

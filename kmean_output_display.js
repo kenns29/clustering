@@ -34,5 +34,5 @@ function kmean_output_display(cluster){
 	if(cluster.sse())
 		d3.select('#kmean-printout-container').append('li')
 		.attr('class', 'list-group-item')
-		.html('avg sse: ' + d3.round(cluster.sse(), 2));
+		.html('total sse: ' + d3.round(cluster.sse(), 2));
 }
