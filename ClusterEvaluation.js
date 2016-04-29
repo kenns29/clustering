@@ -173,6 +173,7 @@ function ClusterEvaluation(){
 				var sc = silhouette_coefficient(c_data[j], cluster);
 				point_silhouette_pairs.push({
 					'name' : point_name,
+					'point' : point_accessor(c_data[j]),
 					'value' : sc
 				});
 			}
@@ -223,12 +224,13 @@ function ClusterEvaluation(){
 			var c_data = points_accessor(cluster);
 			var c_points = c_data.map(point_accessor);
 			var a = 0;
-			for(var i = 0; i < c_points.length; i++){
-				var dist = euclidean_distance(point, c_points[i]);
-				a += dist;
+			if(c_points.length > 1){
+				for(var i = 0; i < c_points.length; i++){
+					var dist = silhouette_dist_metric(point, c_points[i]);
+					a += dist;
+				}
+				a /= c_points.length - 1;
 			}
-			a /= c_points.length;
-
 			var b = Infinity;
 			for(var i = 0; i < data.length; i++){
 				if(cluster.name != data[i].name){
@@ -236,7 +238,7 @@ function ClusterEvaluation(){
 					var o_points = o_data.map(point_accessor);
 					var sum = 0;
 					o_points.forEach(function(o_point){
-						sum += euclidean_distance(point, o_point);
+						sum += silhouette_dist_metric(point, o_point);
 					});
 					sum /= o_points.length;
 					if(sum < b){
@@ -244,7 +246,6 @@ function ClusterEvaluation(){
 					}
 				}
 			}
-
 			return (b - a) / Math.max(a, b);
 		}
 	}

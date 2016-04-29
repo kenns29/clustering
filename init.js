@@ -3,6 +3,7 @@ $(document).ready(function(){
 	draw_hierachical_with_continous_data();
 	// draw_hierachical_with_two_points();
 	draw_kmean_with_euclidean();
+	// matrix_template();
 	evaluation_template();
 });
 /*
@@ -285,7 +286,7 @@ function evaluation_template(){
 
 
 	cev = new ClusterEvaluation().data(clustering)
-	.silhouette_dist_metric(tanimoto_distance);
+	.silhouette_dist_metric(euclidean_distance);
 
 	output('wss')
 	output(cev.WSS());
@@ -317,7 +318,7 @@ function evaluation_template(){
 
 	
 	cev = new ClusterEvaluation().data(clustering)
-	.silhouette_dist_metric(tanimoto_distance);
+	.silhouette_dist_metric(euclidean_distance);
 
 	output(pretty_print(clustering));
 	output('wss')
@@ -327,6 +328,7 @@ function evaluation_template(){
 	output('tss')
 	output(cev.TSS());
 	output('silhouette');
+	console.log('silhouette', cev.silhouette_coefficient());
 	output(pretty_print(cev.silhouette_coefficient()));
 
 }
@@ -356,4 +358,55 @@ function draw_hierachical_with_two_points(){
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
+}
+
+function matrix_template(){
+	var cluster = new HierachicalCluster()
+	.data([{
+		name : '1',
+		value : {
+			point : [0.4, 0.53]
+		}
+	},
+	{
+		name : '2',
+		value: {
+			point : [0.22, 0.38]
+		}
+	},
+	{
+		name : '3',
+		value: {
+			point : [0.35, 0.32]
+		}
+	},
+	{
+		name : '4', 
+		value : {
+			point : [0.26, 0.19]
+		}
+	},
+	{
+		name : '5',
+		value : {
+			point : [0.08, 0.41]
+		}
+	},
+	{
+		name : '6',
+		value : {
+			point : [0.45, 0.30]
+		}
+	}])
+	.dist_metric(tanimoto_distance)
+	.dist_fun('centroid')
+	.save_history(true)
+	.init()
+	.cluster();
+	
+	// new DrawTree().container('tree-container').data(cluster.root()).draw();
+	
+	var matrix = cluster.pair2matrix(cluster.leafPairs());
+	new DrawMatrix().data(matrix).container('matrix-container').draw();
+	// new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
 }
