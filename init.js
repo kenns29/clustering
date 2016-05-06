@@ -1,10 +1,11 @@
 $(document).ready(function(){
 	// draw_hierachical_with_binary_data();
-	draw_hierachical_with_continous_data();
+	// draw_hierachical_with_continous_data();
 	// draw_hierachical_with_two_points();
-	draw_kmean_with_euclidean();
+	// draw_kmean_with_euclidean();
 	// matrix_template();
-	evaluation_template();
+	// evaluation_template();
+	sparseVectorTest();
 });
 /*
 * Euclidean distance example
@@ -409,4 +410,27 @@ function matrix_template(){
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	// new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
+}
+
+function sparseVectorTest(){
+	var v1 = new SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
+	var v2 = new SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
+	var v3 = new SparseVector([1], [1]);
+	var d = v1.dotp(v2);
+	var s = v1.sum(v2);
+	console.log('d', d);
+	console.log('L2', v1.L2norm());
+	console.log('s', s);
+	var ind1 = v1.locationAtIndex(5);
+	console.log('index1', ind1);
+	var ind3 = v3.locationAtIndex(0);
+	console.log('index3', ind3);
+	console.log('v1', v1.toDenseVector());
+	console.log('v2', v2.toDenseVector());
+	console.log('v3', v3.toDenseVector());
+	console.log('s', s.toDenseVector());
+	v1.setValue(1, 2);
+	v1.setValue(4, 1);
+	v1.setValue(20, 1);
+	console.log('v1', v1.toDenseVector());
 }
