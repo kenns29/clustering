@@ -1,10 +1,10 @@
 $(document).ready(function(){
 	// draw_hierachical_with_binary_data();
-	// draw_hierachical_with_continous_data();
+	draw_hierachical_with_continous_data();
 	// draw_hierachical_with_two_points();
-	// draw_kmean_with_euclidean();
+	draw_kmean_with_euclidean();
 	// matrix_template();
-	// evaluation_template();
+	evaluation_template();
 	sparseVectorTest();
 });
 /*
