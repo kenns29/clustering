@@ -27,8 +27,9 @@ function ClusterEvaluation(){
 		data.forEach(function(d){
 			var points = points_accessor(d);
 			var centroid = centroid_accessor(d);
+			var sse;
 			if(centroid === null || centroid === undefined){
-				var sse = new Evaluation().data(points).accessor(point_accessor).SSE();
+				sse = new Evaluation().data(points).accessor(point_accessor).SSE();
 			}
 			else{
 				sse = new Evaluation().data(points).accessor(point_accessor).SSE(centroid_accessor(d));
@@ -84,7 +85,7 @@ function ClusterEvaluation(){
 	};
 	
 	this.silhouette_coefficient = function(point, cluster){
-		if(arguments.length == 0){
+		if(arguments.length === 0){
 			return silhouette_coefficient();
 		}
 		else if(arguments.length == 1){
@@ -134,11 +135,11 @@ function ClusterEvaluation(){
 		data.forEach(function(d){
 			var points = points_accessor(d);
 			numPoints += points.length;
-			points.forEach(function(g){
+			points.forEach(function(g, k){
 				var point = point_accessor(g);
 				if(isArray(point)){
 					if(!centroid){
-						centroid = point.map(function(){return 0;})
+						centroid = point.map(function(){return 0;});
 					}
 					
 					for(var i = 0; i < centroid.length; i++){
@@ -148,7 +149,7 @@ function ClusterEvaluation(){
 				else{
 					if(!centroid)
 						centroid = 0;
-					centroid += point[i];
+					centroid += point;
 				}
 			});
 		});
@@ -1564,10 +1565,3 @@ function isArray(v){
 	return Object.prototype.toString.call(v) === '[object Array]';
 }
 
-function output(s){
-	d3.select('#json-output').append('pre').html(s);
-}
-
-function pretty_print(obj){
-	return JSON.stringify(obj, null, 2);
-}
