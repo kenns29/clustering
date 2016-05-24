@@ -21,7 +21,7 @@ function array2clustering(arr){
 					};
 				})
 			}
-		}
+		};
 	});
 }
 

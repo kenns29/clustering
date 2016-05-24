@@ -1,5 +1,5 @@
 function corr(v){
-	if(v.length == 0){
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
@@ -7,10 +7,10 @@ function corr(v){
 		var standard_dev = std(v);
 		for(var i = 0 ; i < SIGMA.length; i++){
 			for(var j = 0; j < SIGMA.length; j++){
-				if(standard_dev[i] == standard_dev[j] == 0){
+				if(standard_dev[i] === standard_dev[j] === 0){
 					SIGMA[i][j] = 1;
 				}
-				else if(standard_div[i] == 0 || standard_dev[j] == 0){
+				else if(standard_div[i] === 0 || standard_dev[j] === 0){
 					SIGMA[i][j] = 0;
 				}
 				else{
@@ -32,7 +32,7 @@ function corr(v){
 * the matrix is in the form of array of array[[data point],[data point],[data point]...]
 */
 function cov(v){
-	if(v.length == 0){
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
@@ -55,23 +55,24 @@ function cov(v){
 }
 
 function variance(v){
-	if(v.length == 0){
+	var m, sum, i, j;
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
-		var m = mean(v);
-		var sum = Array(v[0]).fill(0);
-		for(var i = 0; i < v.length; i++){
-			for(var j = 0; j < v[i].length; j++){
+		m = mean(v);
+		sum = Array(v[0]).fill(0);
+		for(i = 0; i < v.length; i++){
+			for(j = 0; j < v[i].length; j++){
 				sum[j] += (v[i][j] - m[j]) * (v[i][j] - m[j]); 
 			}
 		}
 		return sum.map(function(d){return d/v.length;});
 	}
 	else{
-		var m = mean(v);
-		var sum = 0;
-		for(var i = 0; i < v.length;i++){
+		m = mean(v);
+		sum = 0;
+		for(i = 0; i < v.length;i++){
 			sum += (v[i] - m) * (v[i] - m);
 		}
 		return sum / v.length;
@@ -79,21 +80,22 @@ function variance(v){
 }
 
 function mean(v){
-	if(v.length == 0){
+	var sum, i, j;
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
-		var sum = Array(v[0].length).fill(0);
-		for(var i = 0; i < v.length; i++){
-			for(var j = 0; j < v[i].length; j++){
+		sum = Array(v[0].length).fill(0);
+		for(i = 0; i < v.length; i++){
+			for(j = 0; j < v[i].length; j++){
 				sum[j] += v[i][j];
 			}
 		}
 		return sum.map(function(d){return d/v.length;});
 	}
 	else{
-		var sum = 0;
-		for(var i =0; i < v.length; i++){
+		sum = 0;
+		for(i =0; i < v.length; i++){
 			sum += v[i];
 		}
 		return sum / v.length;
@@ -101,7 +103,7 @@ function mean(v){
 }
 
 function std(v){
-	if(v.length == 0){
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
@@ -115,14 +117,14 @@ function std(v){
 }
 
 function L1_norm(v){
-	if(v.length == 0) return 0;
+	if(v.length === 0) return 0;
 	return v.reduce(function(pre, cur, ind){
 		return pre + Math.abs(cur);
 	}, 0);
 }
 
 function L2_norm(v){
-	if(v.length == 0) return 0;
+	if(v.length === 0) return 0;
 	var sum = v.reduce(function(pre, cur, ind){
 		return pre + cur * cur;
 	}, 0);

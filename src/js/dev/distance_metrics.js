@@ -45,9 +45,10 @@ function euclidean_distance(a, b){
 }
 
 function minkowski_distance(a, b, r){
+	var i;
 	if(r == Infinity){
 		var max_dist = -Infinity;
-		for(var i = 0; i < a.length; i++){
+		for(i = 0; i < a.length; i++){
 			var dist = Math.abs(a[i] - b[i]);
 			if(dist > max){
 				max = dist;
@@ -57,7 +58,7 @@ function minkowski_distance(a, b, r){
 	}
 	else{
 		var sum = 0;
-		for(var i = 0; i < a.length; i++){
+		for(i = 0; i < a.length; i++){
 			sum += Math.pow(Math.abs(a[i] - b[i]), r);
 		}
 		return Math.pow(sum, 1/r);
@@ -72,9 +73,9 @@ function jaccard_similarity(a, b){
 	var m01 = 0, m10 = 0, m00 = 0, m11 = 0;
 	for(var i = 0; i < a.length; i++){
 		if(a[i] == b[i] == 1) ++m11;
-		else if(a[i] == 1 && b[i] == 0) ++m10;
-		else if(a[i] == 0 && b[i] == 1) ++m01;
-		else if(a[i] == 0 && b[i] == 0) ++m00;
+		else if(a[i] === 1 && b[i] === 0) ++m10;
+		else if(a[i] === 0 && b[i] === 1) ++m01;
+		else if(a[i] === 0 && b[i] === 0) ++m00;
 	}
 	return (m01 + m10 + m11 > 0) ? m11 / (m01 + m10 + m11) : 1;
 }
@@ -84,16 +85,16 @@ function jaccard_distance(a, b){
 }
 
 function tanimoto_similarity(a, b){
-	var sum = 0;
-	for(var i = 0; i < a.length; i++){
+	var sum = 0, i = 0;
+	for(i = 0; i < a.length; i++){
 		sum += a[i] * b[i];
 	}
 	var a_square = 0;
-	for(var i = 0; i < a.length; i++){
+	for(i = 0; i < a.length; i++){
 		a_square += a[i] * a[i];
 	}
 	var b_square = 0;
-	for(var i = 0; i < b.length; i++){
+	for(i = 0; i < b.length; i++){
 		b_square += b[i] * b[i];
 	}
 	return sum / (a_square + b_square - sum);
@@ -106,9 +107,9 @@ function smc_similarity(a, b){
 	var m01 = 0, m10 = 0, m00 = 0, m11 = 0;
 	for(var i = 0; i < a.length; i++){
 		if(a[i] == b[i] == 1) ++m11;
-		else if(a[i] == 1 && b[i] == 0) ++m10;
-		else if(a[i] == 0 && b[i] == 1) ++m01;
-		else if(a[i] == 0 && b[i] == 0) ++m00;
+		else if(a[i] === 1 && b[i] === 0) ++m10;
+		else if(a[i] === 0 && b[i] === 1) ++m01;
+		else if(a[i] === 0 && b[i] === 0) ++m00;
 	}
 	return (m11 + m00) / (m01 + m10 + m11 + m00);
 }
@@ -134,10 +135,10 @@ function correlation_similarity(a, b){
 	var mb = mean(b);
 	var sa = std(a);
 	var sb = std(b);
-	if (sa == 0 && sb == 0){
+	if (sa === 0 && sb === 0){
 		return 1;
 	}
-	else if(sa == 0 || sb == 0){
+	else if(sa === 0 || sb === 0){
 		return 0;
 	}
 	

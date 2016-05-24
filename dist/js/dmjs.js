@@ -301,7 +301,7 @@ function array2clustering(arr){
 					};
 				})
 			}
-		}
+		};
 	});
 }
 
@@ -368,9 +368,10 @@ function euclidean_distance(a, b){
 }
 
 function minkowski_distance(a, b, r){
+	var i;
 	if(r == Infinity){
 		var max_dist = -Infinity;
-		for(var i = 0; i < a.length; i++){
+		for(i = 0; i < a.length; i++){
 			var dist = Math.abs(a[i] - b[i]);
 			if(dist > max){
 				max = dist;
@@ -380,7 +381,7 @@ function minkowski_distance(a, b, r){
 	}
 	else{
 		var sum = 0;
-		for(var i = 0; i < a.length; i++){
+		for(i = 0; i < a.length; i++){
 			sum += Math.pow(Math.abs(a[i] - b[i]), r);
 		}
 		return Math.pow(sum, 1/r);
@@ -395,9 +396,9 @@ function jaccard_similarity(a, b){
 	var m01 = 0, m10 = 0, m00 = 0, m11 = 0;
 	for(var i = 0; i < a.length; i++){
 		if(a[i] == b[i] == 1) ++m11;
-		else if(a[i] == 1 && b[i] == 0) ++m10;
-		else if(a[i] == 0 && b[i] == 1) ++m01;
-		else if(a[i] == 0 && b[i] == 0) ++m00;
+		else if(a[i] === 1 && b[i] === 0) ++m10;
+		else if(a[i] === 0 && b[i] === 1) ++m01;
+		else if(a[i] === 0 && b[i] === 0) ++m00;
 	}
 	return (m01 + m10 + m11 > 0) ? m11 / (m01 + m10 + m11) : 1;
 }
@@ -407,16 +408,16 @@ function jaccard_distance(a, b){
 }
 
 function tanimoto_similarity(a, b){
-	var sum = 0;
-	for(var i = 0; i < a.length; i++){
+	var sum = 0, i = 0;
+	for(i = 0; i < a.length; i++){
 		sum += a[i] * b[i];
 	}
 	var a_square = 0;
-	for(var i = 0; i < a.length; i++){
+	for(i = 0; i < a.length; i++){
 		a_square += a[i] * a[i];
 	}
 	var b_square = 0;
-	for(var i = 0; i < b.length; i++){
+	for(i = 0; i < b.length; i++){
 		b_square += b[i] * b[i];
 	}
 	return sum / (a_square + b_square - sum);
@@ -429,9 +430,9 @@ function smc_similarity(a, b){
 	var m01 = 0, m10 = 0, m00 = 0, m11 = 0;
 	for(var i = 0; i < a.length; i++){
 		if(a[i] == b[i] == 1) ++m11;
-		else if(a[i] == 1 && b[i] == 0) ++m10;
-		else if(a[i] == 0 && b[i] == 1) ++m01;
-		else if(a[i] == 0 && b[i] == 0) ++m00;
+		else if(a[i] === 1 && b[i] === 0) ++m10;
+		else if(a[i] === 0 && b[i] === 1) ++m01;
+		else if(a[i] === 0 && b[i] === 0) ++m00;
 	}
 	return (m11 + m00) / (m01 + m10 + m11 + m00);
 }
@@ -457,10 +458,10 @@ function correlation_similarity(a, b){
 	var mb = mean(b);
 	var sa = std(a);
 	var sb = std(b);
-	if (sa == 0 && sb == 0){
+	if (sa === 0 && sb === 0){
 		return 1;
 	}
-	else if(sa == 0 || sb == 0){
+	else if(sa === 0 || sb === 0){
 		return 0;
 	}
 	
@@ -522,8 +523,8 @@ function Evaluation(){
 	*/
 	this.SSE = function(m){
 		var dat = data.map(accessor);
-		if(arguments.length == 0){
-			var m = mean(dat);
+		if(arguments.length === 0){
+			m = mean(dat);
 		}
 		var sse = 0;
 		for(var i = 0; i < dat.length; i++){
@@ -684,14 +685,17 @@ function HierachicalCluster(){
 	
 
 	this.cut = function(threshold){
+		var nodes;
 		if(cut_opt === 'K'){
-			var nodes = cutByK(threshold);
+			nodes = cutByK(threshold);
 		}
 		//cut the tree based on the distance threshold, distance smaller than the threshold form cluster
 		else if(cut_opt === 'distance'){
-			var nodes = cutByDist(threshold);
+			nodes = cutByDist(threshold);
 		}
-
+		else{
+			nodes = cutByDist(threshold);
+		}
 		var clusters = [];
 		nodes.forEach(function(n){
 			var leafNodes = getLeafNodes(n);
@@ -701,7 +705,7 @@ function HierachicalCluster(){
 					value : {
 						point : p.value.point
 					}
-				}
+				};
 			});
 			clusters.push({
 				name : n.name,
@@ -793,7 +797,7 @@ function HierachicalCluster(){
 		return (arguments.length > 0) ? (root = _, this) : root;
 	};
 	this.dist_fun = function(_){
-		if(arguments.length == 0) return dist_fun;
+		if(arguments.length === 0) return dist_fun;
 		else if(Object.prototype.toString.call(_) === '[object String]'){
 				switch(_){
 					case 'min':
@@ -933,7 +937,7 @@ function HierachicalCluster(){
 	}
 	function getLeafNodes(r){
 		var nodes = [];
-		if(arguments.length == 0){
+		if(arguments.length === 0){
 			getLeafNodesRecurse(root, nodes);
 		}
 		else{
@@ -942,8 +946,8 @@ function HierachicalCluster(){
 		return nodes;
 	}
 	function getLeafNodesRecurse(r, nodes){
-		if(r != null){
-			if(!r.children || r.children.length == 0){
+		if(r !== null){
+			if(!r.children || r.children.length === 0){
 				nodes.push(r);
 			}
 			if(r.children){
@@ -960,7 +964,7 @@ function HierachicalCluster(){
 		recurse(root, nodes);
 		return nodes;
 		function recurse(r, nodes){
-			if(r != null){
+			if(r !== null){
 				if(r.metric < threshold){
 					nodes.push(r);
 				}
@@ -996,7 +1000,7 @@ function HierachicalCluster(){
 						nodes.splice(node_index, 1);
 						node.children.forEach(function(n){
 							nodes.push(n);
-						})
+						});
 					}
 					recurse(nodes);
 				}
@@ -1070,11 +1074,28 @@ function KMean(){
 	};
 
 	this.cluster = function(){
+		//util functions
+		function assign_point(d){
+			var minCluster = clusters[0];
+			var minDist = Number.POSITIVE_INFINITY;
+			clusters.forEach(function(g){
+				var point = accessor(d);
+				var dist = dist_metric(point, g.value.centroid);
+				if(dist < minDist){
+					minDist = dist;
+					minCluster = g;
+				}
+			});
+
+			minCluster.value.points.push(d);
+		}
+
+
 		/*
 		* Perform kmean clsutering algorithm
 		*/
 		var continue_flag = true;
-		var iter = 0;
+		var iter = 0, i = 0;
 		do{
 			++iter;
 			//reset all cluster points
@@ -1084,24 +1105,13 @@ function KMean(){
 
 			//compute the distance of each point with the centroid and update 
 			//cluster assignment
-			data.forEach(function(d){
-				var minCluster = clusters[0];
-				var minDist = Number.POSITIVE_INFINITY;
-				clusters.forEach(function(g){
-					var point = accessor(d);
-					var dist = dist_metric(point, g.value.centroid);
-					if(dist < minDist){
-						minDist = dist;
-						minCluster = g;
-					}
-				});
-
-				minCluster.value.points.push(d);
-			});
+			data.forEach(assign_point);
 
 			continue_flag = false;
 			//compute the new centroid
-			clusters.forEach(function(c){
+			var c;
+			for(i = 0; i < clusters.length; i++){
+				c = clusters[i];
 				if(c.value.points.length > 0){
 					var points = c.value.points.map(accessor);
 					var new_centroid = centroid_fun(points);
@@ -1110,8 +1120,7 @@ function KMean(){
 					c.value.centroid = new_centroid;
 					if (dist_moved > stopThreshold) continue_flag = true;
 				}
-			});
-
+			}
 			/*
 			* Evaluate the final clusters
 			*/
@@ -1119,7 +1128,10 @@ function KMean(){
 				sse = 0;
 				clusters.forEach(function(d){
 					var s = new Evaluation().data(d.value.points)
-					.accessor(function(d){return d.value.point;})
+					.accessor(function(d){
+						'use strict';
+						return d.value.point;
+					})
 					.SSE(d.value.centroid);
 					d.value.sse = s;
 					sse += s;
@@ -1169,7 +1181,7 @@ function KMean(){
 		return (arguments.length > 0) ? (evaluate_sse = _, this) : evaluate_sse;
 	};
 	this.centroid_fun = function(_){
-		if(arguments.length == 0){
+		if(arguments.length === 0){
 			return centroid_fun;
 		}
 		else if(Object.prototype.toString.call(_) === '[object String]'){
@@ -1179,6 +1191,7 @@ function KMean(){
 					break;
 				case 'median':
 					centroid_fun = median;
+					break;
 				default:
 					centroid_fun = mean;
 			}
@@ -1206,21 +1219,22 @@ function KMean(){
 	}
 
 	function mean(v){
-		if(v.length == 0){
+		var sum, i, j;
+		if(v.length === 0){
 			return 0;
 		}
 		else if(isArray(v[0])){
-			var sum = Array(v[0].length).fill(0);
-			for(var i = 0; i < v.length; i++){
-				for(var j = 0; j < v[i].length; j++){
+			sum = Array(v[0].length).fill(0);
+			for(i = 0; i < v.length; i++){
+				for(j = 0; j < v[i].length; j++){
 					sum[j] += v[i][j];
 				}
 			}
 			return sum.map(function(d){return d/v.length;});
 		}
 		else{
-			var sum = 0;
-			for(var i =0; i < v.length; i++){
+			sum = 0;
+			for(i =0; i < v.length; i++){
 				sum += v[i];
 			}
 			return sum / v.length;
@@ -1228,15 +1242,16 @@ function KMean(){
 	}
 
 	function median(v){
-		if(v.length == 0){
+		var vv;
+		if(v.length === 0){
 			return 0;
 		}
 		else if(isArray(v[0])){
-			var vv = v.slice(0);
+			vv = v.slice(0);
 			//TODO: implement the incremental estimation of median
 		}
 		else{
-			var vv = v.slice(0);
+			vv = v.slice(0);
 			vv.sort(function(a, b){return a - b;});
 			return vv[vv.length / 2];
 		}
@@ -1260,7 +1275,7 @@ function SparseVector(indices, values, size){
 	//init the size
 	if(size)
 		this.size = size;
-	else if(this.indices.length == 0){
+	else if(this.indices.length === 0){
 		this.size = 0;
 	}
 	else{
@@ -1476,7 +1491,7 @@ function SparseVector(indices, values, size){
 
 dm.SparseVector = SparseVector;
 function corr(v){
-	if(v.length == 0){
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
@@ -1484,10 +1499,10 @@ function corr(v){
 		var standard_dev = std(v);
 		for(var i = 0 ; i < SIGMA.length; i++){
 			for(var j = 0; j < SIGMA.length; j++){
-				if(standard_dev[i] == standard_dev[j] == 0){
+				if(standard_dev[i] === standard_dev[j] === 0){
 					SIGMA[i][j] = 1;
 				}
-				else if(standard_div[i] == 0 || standard_dev[j] == 0){
+				else if(standard_div[i] === 0 || standard_dev[j] === 0){
 					SIGMA[i][j] = 0;
 				}
 				else{
@@ -1509,7 +1524,7 @@ function corr(v){
 * the matrix is in the form of array of array[[data point],[data point],[data point]...]
 */
 function cov(v){
-	if(v.length == 0){
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
@@ -1532,23 +1547,24 @@ function cov(v){
 }
 
 function variance(v){
-	if(v.length == 0){
+	var m, sum, i, j;
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
-		var m = mean(v);
-		var sum = Array(v[0]).fill(0);
-		for(var i = 0; i < v.length; i++){
-			for(var j = 0; j < v[i].length; j++){
+		m = mean(v);
+		sum = Array(v[0]).fill(0);
+		for(i = 0; i < v.length; i++){
+			for(j = 0; j < v[i].length; j++){
 				sum[j] += (v[i][j] - m[j]) * (v[i][j] - m[j]); 
 			}
 		}
 		return sum.map(function(d){return d/v.length;});
 	}
 	else{
-		var m = mean(v);
-		var sum = 0;
-		for(var i = 0; i < v.length;i++){
+		m = mean(v);
+		sum = 0;
+		for(i = 0; i < v.length;i++){
 			sum += (v[i] - m) * (v[i] - m);
 		}
 		return sum / v.length;
@@ -1556,21 +1572,22 @@ function variance(v){
 }
 
 function mean(v){
-	if(v.length == 0){
+	var sum, i, j;
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
-		var sum = Array(v[0].length).fill(0);
-		for(var i = 0; i < v.length; i++){
-			for(var j = 0; j < v[i].length; j++){
+		sum = Array(v[0].length).fill(0);
+		for(i = 0; i < v.length; i++){
+			for(j = 0; j < v[i].length; j++){
 				sum[j] += v[i][j];
 			}
 		}
 		return sum.map(function(d){return d/v.length;});
 	}
 	else{
-		var sum = 0;
-		for(var i =0; i < v.length; i++){
+		sum = 0;
+		for(i =0; i < v.length; i++){
 			sum += v[i];
 		}
 		return sum / v.length;
@@ -1578,7 +1595,7 @@ function mean(v){
 }
 
 function std(v){
-	if(v.length == 0){
+	if(v.length === 0){
 		return 0;
 	}
 	else if(isArray(v[0])){
@@ -1592,14 +1609,14 @@ function std(v){
 }
 
 function L1_norm(v){
-	if(v.length == 0) return 0;
+	if(v.length === 0) return 0;
 	return v.reduce(function(pre, cur, ind){
 		return pre + Math.abs(cur);
 	}, 0);
 }
 
 function L2_norm(v){
-	if(v.length == 0) return 0;
+	if(v.length === 0) return 0;
 	var sum = v.reduce(function(pre, cur, ind){
 		return pre + cur * cur;
 	}, 0);

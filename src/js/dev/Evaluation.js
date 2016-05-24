@@ -18,8 +18,8 @@ function Evaluation(){
 	*/
 	this.SSE = function(m){
 		var dat = data.map(accessor);
-		if(arguments.length == 0){
-			var m = mean(dat);
+		if(arguments.length === 0){
+			m = mean(dat);
 		}
 		var sse = 0;
 		for(var i = 0; i < dat.length; i++){

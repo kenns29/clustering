@@ -124,14 +124,17 @@ function HierachicalCluster(){
 	
 
 	this.cut = function(threshold){
+		var nodes;
 		if(cut_opt === 'K'){
-			var nodes = cutByK(threshold);
+			nodes = cutByK(threshold);
 		}
 		//cut the tree based on the distance threshold, distance smaller than the threshold form cluster
 		else if(cut_opt === 'distance'){
-			var nodes = cutByDist(threshold);
+			nodes = cutByDist(threshold);
 		}
-
+		else{
+			nodes = cutByDist(threshold);
+		}
 		var clusters = [];
 		nodes.forEach(function(n){
 			var leafNodes = getLeafNodes(n);
@@ -141,7 +144,7 @@ function HierachicalCluster(){
 					value : {
 						point : p.value.point
 					}
-				}
+				};
 			});
 			clusters.push({
 				name : n.name,
@@ -233,7 +236,7 @@ function HierachicalCluster(){
 		return (arguments.length > 0) ? (root = _, this) : root;
 	};
 	this.dist_fun = function(_){
-		if(arguments.length == 0) return dist_fun;
+		if(arguments.length === 0) return dist_fun;
 		else if(Object.prototype.toString.call(_) === '[object String]'){
 				switch(_){
 					case 'min':
@@ -373,7 +376,7 @@ function HierachicalCluster(){
 	}
 	function getLeafNodes(r){
 		var nodes = [];
-		if(arguments.length == 0){
+		if(arguments.length === 0){
 			getLeafNodesRecurse(root, nodes);
 		}
 		else{
@@ -382,8 +385,8 @@ function HierachicalCluster(){
 		return nodes;
 	}
 	function getLeafNodesRecurse(r, nodes){
-		if(r != null){
-			if(!r.children || r.children.length == 0){
+		if(r !== null){
+			if(!r.children || r.children.length === 0){
 				nodes.push(r);
 			}
 			if(r.children){
@@ -400,7 +403,7 @@ function HierachicalCluster(){
 		recurse(root, nodes);
 		return nodes;
 		function recurse(r, nodes){
-			if(r != null){
+			if(r !== null){
 				if(r.metric < threshold){
 					nodes.push(r);
 				}
@@ -436,7 +439,7 @@ function HierachicalCluster(){
 						nodes.splice(node_index, 1);
 						node.children.forEach(function(n){
 							nodes.push(n);
-						})
+						});
 					}
 					recurse(nodes);
 				}

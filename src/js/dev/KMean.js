@@ -59,11 +59,28 @@ function KMean(){
 	};
 
 	this.cluster = function(){
+		//util functions
+		function assign_point(d){
+			var minCluster = clusters[0];
+			var minDist = Number.POSITIVE_INFINITY;
+			clusters.forEach(function(g){
+				var point = accessor(d);
+				var dist = dist_metric(point, g.value.centroid);
+				if(dist < minDist){
+					minDist = dist;
+					minCluster = g;
+				}
+			});
+
+			minCluster.value.points.push(d);
+		}
+
+
 		/*
 		* Perform kmean clsutering algorithm
 		*/
 		var continue_flag = true;
-		var iter = 0;
+		var iter = 0, i = 0;
 		do{
 			++iter;
 			//reset all cluster points
@@ -73,24 +90,13 @@ function KMean(){
 
 			//compute the distance of each point with the centroid and update 
 			//cluster assignment
-			data.forEach(function(d){
-				var minCluster = clusters[0];
-				var minDist = Number.POSITIVE_INFINITY;
-				clusters.forEach(function(g){
-					var point = accessor(d);
-					var dist = dist_metric(point, g.value.centroid);
-					if(dist < minDist){
-						minDist = dist;
-						minCluster = g;
-					}
-				});
-
-				minCluster.value.points.push(d);
-			});
+			data.forEach(assign_point);
 
 			continue_flag = false;
 			//compute the new centroid
-			clusters.forEach(function(c){
+			var c;
+			for(i = 0; i < clusters.length; i++){
+				c = clusters[i];
 				if(c.value.points.length > 0){
 					var points = c.value.points.map(accessor);
 					var new_centroid = centroid_fun(points);
@@ -99,8 +105,7 @@ function KMean(){
 					c.value.centroid = new_centroid;
 					if (dist_moved > stopThreshold) continue_flag = true;
 				}
-			});
-
+			}
 			/*
 			* Evaluate the final clusters
 			*/
@@ -108,7 +113,10 @@ function KMean(){
 				sse = 0;
 				clusters.forEach(function(d){
 					var s = new Evaluation().data(d.value.points)
-					.accessor(function(d){return d.value.point;})
+					.accessor(function(d){
+						'use strict';
+						return d.value.point;
+					})
 					.SSE(d.value.centroid);
 					d.value.sse = s;
 					sse += s;
@@ -158,7 +166,7 @@ function KMean(){
 		return (arguments.length > 0) ? (evaluate_sse = _, this) : evaluate_sse;
 	};
 	this.centroid_fun = function(_){
-		if(arguments.length == 0){
+		if(arguments.length === 0){
 			return centroid_fun;
 		}
 		else if(Object.prototype.toString.call(_) === '[object String]'){
@@ -168,6 +176,7 @@ function KMean(){
 					break;
 				case 'median':
 					centroid_fun = median;
+					break;
 				default:
 					centroid_fun = mean;
 			}
@@ -195,21 +204,22 @@ function KMean(){
 	}
 
 	function mean(v){
-		if(v.length == 0){
+		var sum, i, j;
+		if(v.length === 0){
 			return 0;
 		}
 		else if(isArray(v[0])){
-			var sum = Array(v[0].length).fill(0);
-			for(var i = 0; i < v.length; i++){
-				for(var j = 0; j < v[i].length; j++){
+			sum = Array(v[0].length).fill(0);
+			for(i = 0; i < v.length; i++){
+				for(j = 0; j < v[i].length; j++){
 					sum[j] += v[i][j];
 				}
 			}
 			return sum.map(function(d){return d/v.length;});
 		}
 		else{
-			var sum = 0;
-			for(var i =0; i < v.length; i++){
+			sum = 0;
+			for(i =0; i < v.length; i++){
 				sum += v[i];
 			}
 			return sum / v.length;
@@ -217,15 +227,16 @@ function KMean(){
 	}
 
 	function median(v){
-		if(v.length == 0){
+		var vv;
+		if(v.length === 0){
 			return 0;
 		}
 		else if(isArray(v[0])){
-			var vv = v.slice(0);
+			vv = v.slice(0);
 			//TODO: implement the incremental estimation of median
 		}
 		else{
-			var vv = v.slice(0);
+			vv = v.slice(0);
 			vv.sort(function(a, b){return a - b;});
 			return vv[vv.length / 2];
 		}

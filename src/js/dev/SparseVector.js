@@ -14,7 +14,7 @@ function SparseVector(indices, values, size){
 	//init the size
 	if(size)
 		this.size = size;
-	else if(this.indices.length == 0){
+	else if(this.indices.length === 0){
 		this.size = 0;
 	}
 	else{
