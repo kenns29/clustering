@@ -231,3 +231,5 @@ function KMean(){
 		}
 	}
 }
+
+dm.KMean = KMean;

@@ -141,3 +141,13 @@ function dotp(a, b){
 function mult_m(a, b){
 	
 }
+
+dm.corr = corr;
+dm.cov = cov;
+dm.variance = variance;
+dm.mean = mean;
+dm.std = std;
+dm.L1_norm = L1_norm;
+dm.L2_norm = L2_norm;
+dm.dotp = dotp;
+dm.mult_m = mult_m;

@@ -227,3 +227,5 @@ function SparseVector(indices, values, size){
 		return r;
 	}
 }
+
+dm.SparseVector = SparseVector;

@@ -1,7 +1,7 @@
 /*
 * Similarity/Dissimilarity for Simple Attributes
 */
-function nominal_distnace(a, b){
+function nominal_distance(a, b){
 	return (a === b) ? 1 : 0;
 }
 
@@ -154,3 +154,28 @@ function correlation_distance(a, b){
 	return -correlation_similarity(a, b);
 }
 
+
+
+dm.nominal_distance = nominal_distance;
+dm.nominal_similarity = nominal_similarity;
+dm.ordinal_distance = ordinal_distance;
+dm.ordian_similarity = ordian_similarity;
+dm.ratio_distance = ratio_distance;
+dm.ratio_similarity = ratio_similarity;
+dm.ratio_similarity1 = ratio_similarity1;
+/*
+* Similarity/Dissimilarity for Data Objects
+*/
+dm.euclidean_distance = euclidean_distance;
+dm.minkowski_distance = minkowski_distance;
+dm.mahalanobis_distance = mahalanobis_distance;
+dm.jaccard_similarity = jaccard_similarity;
+dm.jaccard_distance = jaccard_distance;
+dm.tanimoto_similarity = tanimoto_similarity;
+dm.tanimoto_distance = tanimoto_distance;
+dm.smc_similarity = smc_similarity;
+dm.smc_distance = smc_distance;
+dm.cosine_distance = cosine_distance;
+dm.cosine_similarity = cosine_similarity;
+dm.correlation_similarity = correlation_similarity;
+dm.correlation_distance = correlation_distance;

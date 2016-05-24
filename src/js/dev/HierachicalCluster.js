@@ -447,3 +447,5 @@ function HierachicalCluster(){
 		
 	}
 }
+
+dm.HierachicalCluster = HierachicalCluster;
