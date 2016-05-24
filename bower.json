@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "main": "dist/js/dmjs.js",
   "ignore": [
+    "dist/js/concat",
+    "dist/js/css"
     "node_modules",
     "Psuedo Code",
     "src",
