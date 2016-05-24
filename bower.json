@@ -1,0 +1,28 @@
+{
+  "name": "dmjs",
+  "version": "0.0.1",
+  "main": "dist/js/dmjs.js",
+  "ignore": [
+    "node_modules",
+    "Psuedo Code",
+    "src",
+    "view",
+    "index.html",
+    ".bowerrc",
+    ".gitignore",
+    ".jshintignore",
+    ".jshintrc",
+    "bower.json",
+    "Gruntfile.js",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.4",
+    "d3": "^3.5.17"
+  },
+  "devDependencies": {
+    "jquery": "^2.2.4",
+    "d3": "^3.5.17"
+  }
+}
