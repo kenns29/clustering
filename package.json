@@ -9,6 +9,10 @@
     "grunt-contrib-less": "latest",
     "grunt-contrib-uglify": "latest",
     "grunt-contrib-watch": "latest",
+    "grunt-umd": "^2.3.5",
     "jshint-stylish": "latest"
+  },
+  "dependencies": {
+    "grunt-umd": "^2.3.5"
   }
 }

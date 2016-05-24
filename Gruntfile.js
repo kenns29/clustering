@@ -54,15 +54,28 @@ module.exports = function(grunt) {
     concat : {
       build : {
         files : {
-          'dist/js/dmjs.js' : 'src/js/dev/*.js'
+          'dist/js/concat/dmjs.js' : 'src/js/dev/*.js'
+        }
+      }
+    },
+
+    umd : {
+      all : {
+        options : {
+          src :　[
+           'dist/js/concat/*.js'
+          ],
+          dest : 'dist/js/dmjs.js',
+          amdModuleId : 'dm',
+          globalAlias : 'dm'
         }
       }
     }
+    
   });
 
   // ============= // CREATE TASKS ========== //
   grunt.registerTask('default', ['jshint', 'uglify', 'concat']); 
-
 
   // ===========================================================================
   // LOAD GRUNT PLUGINS ========================================================
@@ -75,6 +88,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
-
+  grunt.loadNpmTasks('grunt-umd');
 };
 

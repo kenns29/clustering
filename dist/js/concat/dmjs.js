@@ -1,19 +1,3 @@
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module unless amdModuleId is set
-    define('dm', [], function () {
-      return (factory());
-    });
-  } else if (typeof exports === 'object') {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like environments that support module.exports,
-    // like Node.
-    module.exports = factory();
-  } else {
-    root['dm'] = factory();
-  }
-}(this, function () {
-
 function ClusterEvaluation(){
 	/*
 	* Data needs to be in the following format:
@@ -1581,6 +1565,3 @@ function isArray(v){
 	return Object.prototype.toString.call(v) === '[object Array]';
 }
 
-
-
-}));

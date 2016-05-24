@@ -162,7 +162,7 @@ function ClusterEvaluation(){
 			centroid /= numPoints;
 		}
 		return centroid;
-	};
+	}
 
 	function silhouette_coefficient_for_all_points(){
 		var point_silhouette_pairs = [];
@@ -183,11 +183,11 @@ function ClusterEvaluation(){
 	}
 
 	function silhouette_coefficient(point, cluster){
-		if(arguments.length == 0){
+		if(arguments.length === 0){
 			return silhouette_coefficient_for_all_points();
 		}
 		else if(arguments.length == 1){
-			var cluster = (function(){
+			cluster = (function(){
 				for(var i = 0; i < data.length; i++){
 					var c_data = points_accessor(data[i]);
 					for(var j = 0; j < c_data.length; j++){
@@ -206,7 +206,7 @@ function ClusterEvaluation(){
 				return silhoutte_with_cluster_name(point_accessor(point), cluster);
 			}
 			else{
-				return silhouette_with_cluster(point_accessor(point), cluster)
+				return silhouette_with_cluster(point_accessor(point), cluster);
 			}
 		}
 
@@ -224,23 +224,23 @@ function ClusterEvaluation(){
 		function silhouette_with_cluster(point, cluster){
 			var c_data = points_accessor(cluster);
 			var c_points = c_data.map(point_accessor);
-			var a = 0;
+			var a = 0, i = 0, j = 0;
 			if(c_points.length > 1){
-				for(var i = 0; i < c_points.length; i++){
+				for(i = 0; i < c_points.length; i++){
 					var dist = silhouette_dist_metric(point, c_points[i]);
 					a += dist;
 				}
 				a /= c_points.length - 1;
 			}
 			var b = Infinity;
-			for(var i = 0; i < data.length; i++){
+			for(i = 0; i < data.length; i++){
 				if(cluster.name != data[i].name){
 					var o_data = points_accessor(data[i]);
 					var o_points = o_data.map(point_accessor);
 					var sum = 0;
-					o_points.forEach(function(o_point){
-						sum += silhouette_dist_metric(point, o_point);
-					});
+					for(j = 0; j < o_points.length; j++){
+						sum += silhouette_dist_metric(point, o_points[j]);
+					}
 					sum /= o_points.length;
 					if(sum < b){
 						b = sum;
