@@ -54,7 +54,7 @@ module.exports = function(grunt) {
     concat : {
       build : {
         files : {
-          'dist/js/concat/dmjs.js' : ['src/js/dev/export.js',
+          'dist/concat/dmjs.js' : ['src/js/dev/export.js',
           'src/js/dev/ClusterEvaluation.js', 
           'src/js/dev/data_utils.js',
           'src/js/dev/distance_metrics.js',
@@ -73,9 +73,9 @@ module.exports = function(grunt) {
       all : {
         options : {
           src :　[
-           'dist/js/concat/*.js'
+           'dist/concat/*.js'
           ],
-          dest : 'dist/js/dmjs.js',
+          dest : 'dist/dmjs.js',
           amdModuleId : 'dm',
           globalAlias : 'dm'
         }

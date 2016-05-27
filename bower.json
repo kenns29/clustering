@@ -1,10 +1,9 @@
 {
   "name": "dmjs",
   "version": "0.0.1",
-  "main": "dist/js/dmjs.js",
+  "main": "dist/dmjs.js",
   "ignore": [
-    "dist/js/concat",
-    "dist/js/css",
+    "dist/concat",
     "node_modules",
     "Psuedo Code",
     "src",
