@@ -1,11 +1,17 @@
 # dmjs
 A set of data mining tool for javascript
 
-## Clustering Tools
 
-### Hierachical Cluster
+## Installation
+```
+bower install dmjs
+```
+## What's in it
+### Clustering Tools
 
-### Kmeans Cluster
+#### Hierachical Cluster
 
-## Clustering Evaluation
-## Sparse Vector
+### #Kmeans Cluster
+
+### Clustering Evaluation
+### Sparse Vector
