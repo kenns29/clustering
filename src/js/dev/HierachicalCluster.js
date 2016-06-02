@@ -8,10 +8,17 @@ function HierachicalCluster(){
 	var topPairs;
 	var topPairMap;
 	/*
-	* Data needs to be a json array of form [{name, value:{point:[1, 2, 3]}}]
+	* Node data needs to be a json array of form [{name, value:{point:[1, 2, 3]}}]
 	* each data point will be automatically assigned an id, which by default is the index
+	*
+	* Pair data needs to be a json array of the form [{from: {name, }]
 	*/
 	var data;
+
+	/*
+	* Specify the type of input data: node, pair, node-pair
+	*/
+	var data_type = HierachicalCluster.DATA_TYPE.NODE;
 	/*
 	* The default accesor is point
 	*/
@@ -66,48 +73,59 @@ function HierachicalCluster(){
 	
 	this.init = function(){
 		/*
-		* Init leaf nodes
+		* Init for node data
 		*/
-		nodes = data.map(function(d, i){
-			return {
-				'id' : i,
-				'name' : d.name,
-				'value':{
-					'point' : accessor(d)
-				},
-				'm' : 1,
-				'metric' : 0
-			};
-		});
-		topNodes = nodes.slice(0);
-		
-		nID = nodes.length;
-		/*
-		* Init pairs
-		*/
-		for(var i = 0; i < nodes.length; i++){
-			var p1 = nodes[i].value.point;
-			for(var j = i+1; j < nodes.length; j++){
-				var p2 = nodes[j].value.point;
-				var dist = dist_metric(p1, p2);
-				pairs.push({
-					'id' : nodes[i].id + '-' + nodes[j].id,
-					'from' : nodes[i],
-					'to' : nodes[j],
-					'dist': dist
-				});
+		if(data_type === HierachicalCluster.DATA_TYPE.NODE){
+			/*
+			* Init leaf nodes
+			*/
+			nodes = data.map(function(d, i){
+				return {
+					'id' : i,
+					'name' : d.name,
+					'value':{
+						'point' : accessor(d)
+					},
+					'm' : 1,
+					'metric' : 0
+				};
+			});
+			topNodes = nodes.slice(0);
+			
+			nID = nodes.length;
+			/*
+			* Init pairs
+			*/
+			for(var i = 0; i < nodes.length; i++){
+				var p1 = nodes[i].value.point;
+				for(var j = i+1; j < nodes.length; j++){
+					var p2 = nodes[j].value.point;
+					var dist = dist_metric(p1, p2);
+					pairs.push({
+						'id' : nodes[i].id + '-' + nodes[j].id,
+						'from' : nodes[i],
+						'to' : nodes[j],
+						'dist': dist
+					});
+				}
 			}
+			//copy the pairs to leafPairs
+			leafPairs = pairs.slice(0);
+			//copy pairs to the top pairs and sort the top pairs 
+			topPairs = pairs.slice(0);
+			topPairs.sort(function(a, b){
+				return a.dist - b.dist;
+			});
+			topPairMap = d3.map(topPairs, function(d){
+				return d.id;
+			});
 		}
-		//copy the pairs to leafPairs
-		leafPairs = pairs.slice(0);
-		//copy pairs to the top pairs and sort the top pairs 
-		topPairs = pairs.slice(0);
-		topPairs.sort(function(a, b){
-			return a.dist - b.dist;
-		});
-		topPairMap = d3.map(topPairs, function(d){
-			return d.id;
-		});
+		/*
+		* Init for pair data
+		*/
+		else if(data_type === HierachicalCluster.DATA_TYPE.PAIR){
+
+		}
 		return this;
 	};
 	
@@ -317,6 +335,13 @@ function HierachicalCluster(){
 	this.history = function(){
 		return history_pairs;
 	};
+	this.name_fun = function(_){
+		return (arguments.length > 0) ? (name_fun = _, this) : name_fun;
+	};
+
+	this.data_type = function(_){
+		return (arguments.length > 0) ? (data_type = _, this) : data_type;
+	};
 	/*
 	* Using Lance Williams formula to compare clusters between node R and Q,
 	* R is formed by mergin cluster A and B
@@ -451,4 +476,9 @@ function HierachicalCluster(){
 	}
 }
 
+HierachicalCluster.DATA_TYPE = {
+	NODE : 'node',
+	PAIR : 'pair',
+	NODE_PAIR : 'node-pair'
+};
 dm.HierachicalCluster = HierachicalCluster;
