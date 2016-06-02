@@ -7,4 +7,5 @@ A set of data mining tool for javascript
 
 ### Kmeans Cluster
 
+## Clustering Evaluation
 ## Sparse Vector
