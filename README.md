@@ -11,7 +11,7 @@ bower install dmjs
 
 #### Hierachical Cluster
 
-### #Kmeans Cluster
+### Kmeans Cluster
 
 ### Clustering Evaluation
 ### Sparse Vector
