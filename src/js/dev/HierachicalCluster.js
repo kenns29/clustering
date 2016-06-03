@@ -423,13 +423,12 @@ function HierachicalCluster(){
 	}
 	
 	function cutByDist(threshold){
-		console.log('root', root);
 		var nodes = [];
 		recurse(root, nodes);
 		return nodes;
 		function recurse(r, nodes){
 			if(r !== null){
-				if(r.metric < threshold){
+				if(r.metric <= threshold){
 					nodes.push(r);
 				}
 				else{
