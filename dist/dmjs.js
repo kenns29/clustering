@@ -721,7 +721,8 @@ function HierachicalCluster(){
 				return {
 					name : p.name, 
 					value : {
-						point : p.value.point
+						point : p.value.point,
+						dist : p.metric
 					}
 				};
 			});
@@ -729,7 +730,8 @@ function HierachicalCluster(){
 				name : n.name,
 				id : n.id,
 				value : {
-					points : points
+					points : points,
+					dist : n.metric
 				}
 			});
 		});
