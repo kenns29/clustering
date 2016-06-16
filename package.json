@@ -10,7 +10,8 @@
     "grunt-contrib-uglify": "latest",
     "grunt-contrib-watch": "latest",
     "grunt-umd": "^2.3.5",
-    "jshint-stylish": "latest"
+    "jshint-stylish": "latest",
+    "tape": "^4.5.1"
   },
   "dependencies": {
     "grunt-umd": "^2.3.5"

@@ -85,7 +85,7 @@ module.exports = function(grunt) {
   });
 
   // ============= // CREATE TASKS ========== //
-  grunt.registerTask('default', ['jshint', 'uglify', 'concat']); 
+  grunt.registerTask('default', ['concat', 'umd']); 
 
   // ===========================================================================
   // LOAD GRUNT PLUGINS ========================================================

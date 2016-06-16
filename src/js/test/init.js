@@ -429,8 +429,11 @@ function sparseVectorTest(){
 	console.log('v2', v2.toDenseVector());
 	console.log('v3', v3.toDenseVector());
 	console.log('s', s.toDenseVector());
+
 	v1.setValue(1, 2);
 	v1.setValue(4, 1);
 	v1.setValue(20, 1);
 	console.log('v1', v1.toDenseVector());
+
+
 }
