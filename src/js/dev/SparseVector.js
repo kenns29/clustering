@@ -58,7 +58,24 @@ function SparseVector(indices, values, size){
 	 * Compute the difference of two sparse vectors
 	 */
 	this.diff = function(other) {
-		
+		'use strict';
+		var indices = mergeArray(self.indices, other.indices);
+		var values = [];
+		indices.forEach(function(d, i){
+			var location = self.locationAtIndex(d);
+			var otherLocation = other.locationAtIndex(d);
+			if(location >= 0 && otherLocation >= 0){
+				values[i] = self.values[location] - other.values[otherLocation];
+			}
+			else if(location >= 0){
+				values[i] = self.values[location];
+			}
+			else if(otherLocation >= 0){
+				values[i] = -other.values[otherLocation];
+			}
+		});
+
+		return new SparseVector(indices, values, Math.max(self.size, other.size));
 	};
 	
 	/*
