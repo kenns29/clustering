@@ -674,8 +674,20 @@ function HierachicalCluster(){
 			leafPairs = pairs.slice(0);
 			//copy pairs to the top pairs and sort the top pairs 
 			topPairs = pairs.slice(0);
+			topPairs.forEach(function(d, i){
+				d.index = i;
+			});
+			
 			topPairs.sort(function(a, b){
-				return a.dist - b.dist;
+				if(a.dist < b.dist){
+					return -1;
+				}
+				else if(a.dist > b.dist){
+					return 1;
+				}
+				else{
+					return a.index - b.index;
+				}
 			});
 			topPairMap = d3.map(topPairs, function(d){
 				return d.id;
@@ -940,13 +952,27 @@ function HierachicalCluster(){
 		});
 		
 		//remove the pairs related to n1 and n2
-		var i = topPairs.length;
+		i = topPairs.length;
 		while(i--){
 			if(topPairs[i].from.id == n1.id || topPairs[i].to.id == n1.id || topPairs[i].from.id == n2.id || topPairs[i].to.id == n2.id){
 				topPairs.splice(i, 1);
 			}
 		}
-		topPairs.sort(function(a, b){return a.dist - b.dist;});
+		topPairs.forEach(function(d, i){
+			d.index = i;
+		});
+
+		topPairs.sort(function(a, b){
+			if(a.dist < b.dist){
+				return -1;
+			}
+			else if(a.dist > b.dist){
+				return 1;
+			}
+			else{
+				return a.index - b.index;
+			}
+		});
 		topPairMap = d3.map(topPairs, function(d){return d.id;});
 		topNodes.push(n);
 		++nID;
