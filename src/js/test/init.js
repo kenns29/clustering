@@ -12,44 +12,86 @@ $(document).ready(function(){
 */
 function draw_hierachical_with_continous_data(){
 	var cluster = new HierachicalCluster()
+	// .data([{
+	// 	name : '1',
+	// 	value : {
+	// 		point : [0.4, 0.53]
+	// 	}
+	// },
+	// {
+	// 	name : '2',
+	// 	value: {
+	// 		point : [0.22, 0.38]
+	// 	}
+	// },
+	// {
+	// 	name : '3',
+	// 	value: {
+	// 		point : [0.35, 0.32]
+	// 	}
+	// },
+	// {
+	// 	name : '4', 
+	// 	value : {
+	// 		point : [0.26, 0.19]
+	// 	}
+	// },
+	// {
+	// 	name : '5',
+	// 	value : {
+	// 		point : [0.08, 0.41]
+	// 	}
+	// },
+	// {
+	// 	name : '6',
+	// 	value : {
+	// 		point : [0.45, 0.30]
+	// 	}
+	// }])
 	.data([{
 		name : '1',
 		value : {
-			point : [0.4, 0.53]
+			point : [0, 1]
 		}
 	},
 	{
 		name : '2',
 		value: {
-			point : [0.22, 0.38]
+			point : [0, 2]
 		}
 	},
 	{
 		name : '3',
 		value: {
-			point : [0.35, 0.32]
+			point : [0, 3]
 		}
 	},
 	{
 		name : '4', 
 		value : {
-			point : [0.26, 0.19]
+			point : [0, 3]
 		}
 	},
 	{
 		name : '5',
 		value : {
-			point : [0.08, 0.41]
+			point : [0, -1]
 		}
 	},
 	{
 		name : '6',
 		value : {
-			point : [0.45, 0.30]
+			point : [0, 10]
+		}
+	},
+	{
+		name : '7',
+		value : {
+			point : [0, 11]
 		}
 	}])
 	.dist_metric(tanimoto_distance)
-	.dist_fun('centroid')
+	.dist_fun('max')
 	.save_history(true)
 	.init()
 	.cluster();
@@ -90,10 +132,16 @@ function draw_hierachical_with_binary_data(){
 			point : [0, 0, 0, 1, 0, 1]
 		}
 	},
+	// {
+	// 	name : '4', 
+	// 	value : {
+	// 		point : [0, 1, 0, 1, 0, 0]
+	// 	}
+	// },
 	{
-		name : '4', 
+		name : '4',
 		value : {
-			point : [0, 1, 0, 1, 0, 0]
+			point : [0, 0, 0, 1, 0, 0]
 		}
 	},
 	{
@@ -110,7 +158,7 @@ function draw_hierachical_with_binary_data(){
 	}])
 	.save_history(true)
 	.dist_metric(jaccard_distance)
-	.dist_fun('group_average')
+	.dist_fun('max')
 	.init()
 	.cluster();
 	
