@@ -97,7 +97,7 @@ function HierachicalCluster(){
 			for(i = 0; i < data.length; i++){
 				node = data[i];
 				node.id = i;
-				node.value.point = accessor(d),
+				node.value.point = accessor(node),
 				node.m = 1;
 				node.metric = 0;
 				nodes.push(node);
