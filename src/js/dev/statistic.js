@@ -144,6 +144,11 @@ function mult_m(a, b){
 	
 }
 
+//find inverse of matrix m
+function inv_m(m){
+	
+}
+
 dm.corr = corr;
 dm.cov = cov;
 dm.variance = variance;

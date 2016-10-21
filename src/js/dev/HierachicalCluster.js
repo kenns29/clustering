@@ -72,6 +72,8 @@ function HierachicalCluster(){
 	};
 	
 	this.init = function(){
+		var i, j;
+		var node;
 		/*
 		* Init for node data
 		*/
@@ -79,26 +81,36 @@ function HierachicalCluster(){
 			/*
 			* Init leaf nodes
 			*/
-			nodes = data.map(function(d, i){
-				return {
-					'id' : i,
-					'name' : d.name,
-					'value':{
-						'point' : accessor(d)
-					},
-					'm' : 1,
-					'metric' : 0
-				};
-			});
+			// nodes = data.map(function(d, i){
+			// 	return {
+			// 		'id' : i,
+			// 		'name' : d.name,
+			// 		'value':{
+			// 			'point' : accessor(d)
+			// 		},
+			// 		'm' : 1,
+			// 		'metric' : 0
+			// 	};
+			// });
+
+			nodes = [];
+			for(i = 0; i < data.length; i++){
+				node = data[i];
+				node.id = i;
+				node.value.point = accessor(d),
+				node.m = 1;
+				node.metric = 0;
+			}
+
 			topNodes = nodes.slice(0);
 			
 			nID = nodes.length;
 			/*
 			* Init pairs
 			*/
-			for(var i = 0; i < nodes.length; i++){
+			for(i = 0; i < nodes.length; i++){
 				var p1 = nodes[i].value.point;
-				for(var j = i+1; j < nodes.length; j++){
+				for(j = i+1; j < nodes.length; j++){
 					var p2 = nodes[j].value.point;
 					var dist = dist_metric(p1, p2);
 					pairs.push({
