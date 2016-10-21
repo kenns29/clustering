@@ -661,6 +661,7 @@ function HierachicalCluster(){
 				node.value.point = accessor(d),
 				node.m = 1;
 				node.metric = 0;
+				nodes.push(node);
 			}
 
 			topNodes = nodes.slice(0);
