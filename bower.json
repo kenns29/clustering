@@ -20,6 +20,7 @@
   ],
   "dependencies": {
     "jquery": null,
-    "d3": "^3.5.17"
+    "d3": "^3.5.17",
+    "js-priority-queue": "^0.1.5"
   }
 }

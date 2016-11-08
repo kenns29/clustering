@@ -1,11 +1,12 @@
 $(document).ready(function(){
 	// draw_hierachical_with_binary_data();
-	draw_hierachical_with_continous_data();
+	// draw_hierachical_with_continous_data();
 	// draw_hierachical_with_two_points();
-	draw_kmean_with_euclidean();
+	// draw_kmean_with_euclidean();
 	// matrix_template();
-	evaluation_template();
-	sparseVectorTest();
+	// evaluation_template();
+	// sparseVectorTest();
+	dijkstra_test();
 });
 /*
 * Euclidean distance example
@@ -482,6 +483,106 @@ function sparseVectorTest(){
 	v1.setValue(4, 1);
 	v1.setValue(20, 1);
 	console.log('v1', v1.toDenseVector());
+}
 
+function dijkstra_test(){
+	var nodes = [
+	{
+		id : 0,
+		name : 0
+	},
+	{
+		id: 1,
+		name : 1
+	},
+	{
+		id : 2,
+		name : 2
+	},
+	{
+		id : 3,
+		name : 3
+	},
+	{
+		id : 4,
+		name : 4
+	},
+	{
+		id : 5,
+		name : 5
+	},
+	{
+		id : 6,
+		name : 6
+	}
+	];
 
+	var edges = [
+	{
+		source : nodes[0],
+		target : nodes[1],
+		value : 2
+	},
+	{
+		source : nodes[0],
+		target : nodes[2],
+		value : 9
+	},
+	{
+		source : nodes[1],
+		target : nodes[2],
+		value : 4
+	},
+	{
+		source : nodes[1],
+		target : nodes[3],
+		value : 2
+	},
+	{
+		source : nodes[2],
+		target : nodes[3],
+		value : 1
+	},
+	{
+		source : nodes[2],
+		target : nodes[5],
+		value : 3
+	},
+	{
+		source : nodes[2],
+		target : nodes[6],
+		value : 11
+	},
+	{
+		source : nodes[3],
+		target : nodes[4],
+		value : 1
+	},
+	{
+		source : nodes[4],
+		target : nodes[6],
+		value : 7
+	},
+	{
+		source : nodes[5],
+		target : nodes[6],
+		value : 7
+	}
+	];
+
+	var G = graph().nodes(nodes).edges(edges).create();
+	console.log('G', G.nodes(), G.edges());
+
+	var dk = shortest_path_dikstra().graph(G).source(G.nodes()[0]);
+	console.log('dk', dk());
+
+	var paths = dk();
+	var path;
+	var i;
+	for(i = 0; i < paths.length; i++){
+		path = paths[i];
+		console.log(path.map(function(d){
+			return d.id;
+		}));
+	}
 }

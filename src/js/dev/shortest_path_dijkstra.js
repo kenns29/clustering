@@ -9,46 +9,86 @@ function shortest_path_dikstra(){
 	*/
 	var direction = 'undirected';
 
-	function edge_value(edge){
-		return value;
-	}
 	function value_comparator(v1, v2){
-		return v2 - v1;
+		return v1 - v2;
+	}
+	function node_comparator(n1, n2){
+		return value_comparator(n1.dk_status.metric, n2.dk_status.metric); 
+	}
+	function init_metric(){
+		return Infinity;
+	}
+	function init_source_metric(){
+		return 0;
 	}
 	//this is testing the undirected only
-	function single_source_single_target(){
+	function single_source(){
 		var i, j;
-		var edge;
-		var cur_node = source;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
 		var neighbor;
-		var neighbor_value;
-		var value;
-		var v_comp;
-		for(i = 0; i < cur_node.edges.length; i++){
-			edge = cur_node.edges[i];
-			neighbor = cur_node.neighbor(edge);
-			value = edge_value(edge);
-			neighbor_value = neighbor.dk_status.value;
-			v_comp = value_comparator(value, neighbor_value);
-			if(v_comp > 0){
-				neighbor.dk_status.value = value;
-				neighbor.dk_status.backtracker = cur_node;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new PriorityQueue({comparator: node_comparator});
+		
+		for(i = 0; i < nodes.length; i++){
+			console.log('nodes[i]', nodes[i]);
+			Q.queue(nodes[i]);
+		}
+		
+		while(Q.length && Q.length> 0){
+			cur_node = Q.dequeue();
+			
+			for(i = 0; i < cur_node.edges.length; i++){
+				edge = cur_node.edges[i];
+				neighbor = cur_node.neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
 			}
 		}
 	}
 
-	function init_nodes(){
+	function init_nodes(nodes){
+		for(i = 0; i < nodes.length; i++){
+			nodes[i].dk_status = {};
+			nodes[i].dk_status.backpointer = null;
+			if(nodes[i] === source){
+				nodes[i].dk_status.metric = init_source_metric();
+			}
+			else{
+				nodes[i].dk_status.metric = init_metric();
+			}
+		}
+	}
+
+	function all_paths(){
+		var i, j;
 		var nodes = graph.nodes();
-		nodes.forEach(function(d){
-			d.dk_status = {
-				value : Infinity,
-				backtracker: d,
-			};
-		});
+		var node;
+		var paths = [];
+		var path;
+		for(i = 0; i < nodes.length; i++){
+			path = [];
+			node = nodes[i];
+			do{
+				path.unshift(node);
+			}while(node = node.dk_status.backpointer);
+
+			paths.push(path);
+		}
+		return paths;
 	}
 
 	function ret(){
-
+		single_source();
+		return all_paths();
 	}
 
 	ret.graph = function(_){
