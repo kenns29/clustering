@@ -19,11 +19,7 @@
     "README.md"
   ],
   "dependencies": {
-    "jquery": "^2.2.4",
-    "d3": "^3.5.17"
-  },
-  "devDependencies": {
-    "jquery": "^2.2.4",
+    "jquery": null,
     "d3": "^3.5.17"
   }
 }

@@ -1,0 +1,3 @@
+function girvan_newman(){
+	
+}
