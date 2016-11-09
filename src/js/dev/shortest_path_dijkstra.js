@@ -4,8 +4,7 @@ function shortest_path_dikstra(){
 	/*
 	* 1) in
 	* 2) out
-	* 3) double
-	* 4) undirected
+	* 3) undirected
 	*/
 	var direction = 'undirected';
 
@@ -22,7 +21,7 @@ function shortest_path_dikstra(){
 		return 0;
 	}
 	//this is testing the undirected only
-	function single_source(){
+	function single_source_undirected(){
 		var i, j;
 		var nodes = graph.nodes();
 		var edges = graph.edges();
@@ -54,6 +53,23 @@ function shortest_path_dikstra(){
 		}
 	}
 
+	function single_source_in(){
+		var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new PriorityQueue({comparator: node_comparator});
+		
+		for(i = 0; i < nodes.length; i++){
+			Q.queue(nodes[i]);
+		}
+	}
 	function init_nodes(nodes){
 		for(i = 0; i < nodes.length; i++){
 			nodes[i].dk_status = {};
@@ -86,7 +102,7 @@ function shortest_path_dikstra(){
 	}
 
 	function ret(){
-		single_source();
+		single_source_undirected();
 		return all_paths();
 	}
 

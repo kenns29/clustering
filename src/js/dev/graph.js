@@ -39,6 +39,8 @@ function graph(){
 			node.all_in_neighbors = all_in_neighbors_OF_Node;
 			node.all_out_neighbors = all_out_neighbors_OF_Node;
 			node.neighbor = neighbor_OF_Node;
+			node.in_neighbor = in_neighbor_OF_Node;
+			node.out_neighbor = out_neighbor_OF_Node;
 		}
 
 		for(i = 0; i < edges.length; i++){
@@ -113,6 +115,23 @@ function graph(){
     	}
     }
 
+    function in_neighbor(node, edge){
+    	if(edge.target === node){
+    		return edge.source;
+    	}
+    	else{
+    		return null;
+    	}
+    }
+
+    function out_neighbor(node, edge){
+    	if(edge.source === node){
+    		return edge.target;
+    	}
+    	else{
+    		return null;
+    	}
+    }
 
 	var ret = {
 		'nodes' : function(_){
@@ -152,5 +171,13 @@ function graph(){
 
 	function neighbor_OF_Node(edge){
 		return neighbor(this, edge);
+	}
+
+	function in_neighbor_OF_Node(edge){
+		return in_neighbor(this, edge);
+	}
+
+	function out_neighbor_OF_Node(edge){
+		return out_neighbor(this, edge);
 	}
 }
