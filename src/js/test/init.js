@@ -574,21 +574,21 @@ function dijkstra_test(){
 	console.log('G', G.nodes(), G.edges());
 
 	var dk = shortest_path_dijkstra()
-	.direction('undirected')
+	.direction('out')
 	.init_metric(function(){return 0;})
 	.init_source_metric(function(){return Infinity;})
 	.comparator(function(a, b){
 		return b - a;
 	})
-	.graph(G).source(G.nodes()[0]);
-	console.log('dk', dk());
-
+	// .source(G.nodes()[0])
+	.graph(G);
+	// dk();
 	var paths = dk();
 	var path;
 	var i;
 	for(i = 0; i < paths.length; i++){
 		path = paths[i];
-		console.log(path.map(function(d){
+		console.log(i, path.map(function(d){
 			return d.id;
 		}));
 	}

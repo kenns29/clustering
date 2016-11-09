@@ -34,6 +34,7 @@ function shortest_path_dijkstra(){
 	* 3) undirected
 	*/
 	var direction = 'undirected';
+	var include_self_path = false;
 
 	function value_comparator(v1, v2){
 		return v1 - v2;
@@ -47,6 +48,29 @@ function shortest_path_dijkstra(){
 	function init_source_metric(){
 		return 0;
 	}
+
+	function multi_source(){
+		var paths = graph.nodes().reduce(function(pre, cur, ind){
+			source = cur;
+			return pre.concat(single_source());
+		}, []);
+
+		source = target = undefined;
+		return paths;
+	}
+
+	function single_source(){
+		if(direction === 'undirected')
+			single_source_undirected();
+		else if(direction === 'in')
+			single_source_in();
+		else if(direction === 'out')
+			single_source_out();
+		else
+			single_source_out();
+		return all_paths();
+	}
+
 	//this is testing the undirected only
 	function single_source_undirected(){
 		var i, j;
@@ -78,6 +102,7 @@ function shortest_path_dijkstra(){
 				}
 			}
 		}
+		return ret;
 	}
 
 	function single_source_in(){
@@ -109,10 +134,11 @@ function shortest_path_dijkstra(){
 				}
 			}
 		}
+		return ret;
 	}
 
 	function single_source_out(){
-				var i, j;
+		var i, j;
 		var nodes = graph.nodes();
 		var edges = graph.edges();
 		var cur_node;
@@ -140,6 +166,7 @@ function shortest_path_dijkstra(){
 				}
 			}
 		}
+		return ret;
 	}
 	function init_nodes(nodes){
 		for(i = 0; i < nodes.length; i++){
@@ -160,28 +187,28 @@ function shortest_path_dijkstra(){
 		var node;
 		var paths = [];
 		var path;
+
 		for(i = 0; i < nodes.length; i++){
 			path = [];
 			node = nodes[i];
 			do{
 				path.unshift(node);
 			}while(node = node.dk_status.backpointer);
-
-			paths.push(path);
+			if(include_self_path || path.length > 1)
+				if(path[0] === source)
+					paths.push(path);
 		}
 		return paths;
 	}
 
+
 	function ret(){
-		if(direction === 'undirected')
-			single_source_undirected();
-		else if(direction === 'in')
-			single_source_in();
-		else if(direction === 'out')
-			single_source_out();
-		else
-			single_source_out();
-		return all_paths();
+		if(source && !target){
+			return single_source();
+		}
+		else if(!source && !target){
+			return multi_source();
+		}
 	}
 
 	ret.graph = function(_){
@@ -213,6 +240,10 @@ function shortest_path_dijkstra(){
 	ret.init_source_metric = function(_){
 		if(arguments.length > 0) init_source_metric = _;
 		return ret;
+	};
+
+	ret.self_path = function(_){
+		return arguments.length > 0 ? (include_self_path = _, ret) : include_self_path;
 	};
 
 	return ret;
