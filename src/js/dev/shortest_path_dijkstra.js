@@ -69,6 +69,50 @@ function shortest_path_dikstra(){
 		for(i = 0; i < nodes.length; i++){
 			Q.queue(nodes[i]);
 		}
+
+		while(Q.length && Q.length > 0){
+			cur_node = Q.dequeue();
+			for(i = 0; i < cur_node.in_edges.length; i++){
+				edge = cur_node.in_edges[i];
+				neighbor = cur_node.in_neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
+	}
+
+	function single_source_out(){
+				var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new PriorityQueue({comparator: node_comparator});
+		
+		for(i = 0; i < nodes.length; i++){
+			Q.queue(nodes[i]);
+		}
+
+		while(Q.length && Q.length > 0){
+			cur_node = Q.dequeue();
+			for(i = 0; i < cur_node.out_edges.length; i++){
+				edge = cur_node.out_edges[i];
+				neighbor = cur_node.out_neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
 	}
 	function init_nodes(nodes){
 		for(i = 0; i < nodes.length; i++){
@@ -102,7 +146,14 @@ function shortest_path_dikstra(){
 	}
 
 	function ret(){
-		single_source_undirected();
+		if(direction === 'undirected')
+			single_source_undirected();
+		else if(direction === 'in')
+			single_source_in();
+		else if(direction === 'out')
+			single_source_out();
+		else
+			single_source_out();
 		return all_paths();
 	}
 
