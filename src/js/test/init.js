@@ -6,7 +6,8 @@ $(document).ready(function(){
 	// matrix_template();
 	// evaluation_template();
 	// sparseVectorTest();
-	dijkstra_test();
+	// dijkstra_test();
+	breadth_first_search_test();
 });
 /*
 * Euclidean distance example
@@ -592,4 +593,96 @@ function dijkstra_test(){
 			return d.id;
 		}));
 	}
+}
+
+function breadth_first_search_test(){
+	var nodes = [
+	{
+		id : 0,
+		name : 0
+	},
+	{
+		id: 1,
+		name : 1
+	},
+	{
+		id : 2,
+		name : 2
+	},
+	{
+		id : 3,
+		name : 3
+	},
+	{
+		id : 4,
+		name : 4
+	},
+	{
+		id : 5,
+		name : 5
+	},
+	{
+		id : 6,
+		name : 6
+	}
+	];
+
+	var edges = [
+	{
+		source : nodes[0],
+		target : nodes[1],
+		value : 2
+	},
+	{
+		source : nodes[0],
+		target : nodes[2],
+		value : 9
+	},
+	{
+		source : nodes[1],
+		target : nodes[2],
+		value : 4
+	},
+	{
+		source : nodes[1],
+		target : nodes[3],
+		value : 2
+	},
+	{
+		source : nodes[2],
+		target : nodes[3],
+		value : 1
+	},
+	{
+		source : nodes[2],
+		target : nodes[5],
+		value : 3
+	},
+	{
+		source : nodes[2],
+		target : nodes[6],
+		value : 11
+	},
+	{
+		source : nodes[3],
+		target : nodes[4],
+		value : 1
+	},
+	{
+		source : nodes[4],
+		target : nodes[6],
+		value : 7
+	},
+	{
+		source : nodes[5],
+		target : nodes[6],
+		value : 7
+	}
+	];
+
+	var G = graph().nodes(nodes).edges(edges).create();
+	console.log('G', G.nodes(), G.edges());
+
+	var bs = breadth_first_search().graph(G).source(G.nodes()[0]);
+	bs();
 }

@@ -4,7 +4,7 @@ function queue() {
 
 	var Q = {
 		len : len,
-		is_empty : is_empty,
+		empty : empty,
 		enqueue : enqueue,
 		dequeue : dequeue,
 		peek : peek
@@ -14,7 +14,7 @@ function queue() {
 		return a.length - b;
 	}
 	
-	function is_empty() {
+	function empty() {
 		return 0 == a.length;
 	}
 	
@@ -35,3 +35,5 @@ function queue() {
 
 	return Q;
 }
+
+dm.queue = queue;
