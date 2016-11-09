@@ -173,6 +173,21 @@ function shortest_path_dikstra(){
 		return arguments.length > 0 ? (direction = _, ret) : direction;
 	};
 
+	ret.comparator = function(_){
+		if(arguments.length > 0) value_comparator = _;
+		return ret;
+	};
+
+	ret.init_metric = function(_){
+		if(arguments.length > 0) init_metric = _;
+		return ret;
+	};
+
+	ret.init_source_metric = function(_){
+		if(arguments.length > 0) init_source_metric = _;
+		return ret;
+	};
+	
 	return ret;
 }
 
