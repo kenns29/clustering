@@ -36,7 +36,6 @@ function shortest_path_dikstra(){
 		var Q = new PriorityQueue({comparator: node_comparator});
 		
 		for(i = 0; i < nodes.length; i++){
-			console.log('nodes[i]', nodes[i]);
 			Q.queue(nodes[i]);
 		}
 		
