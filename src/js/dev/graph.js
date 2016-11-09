@@ -181,3 +181,5 @@ function graph(){
 		return out_neighbor(this, edge);
 	}
 }
+
+dm.graph = graph;

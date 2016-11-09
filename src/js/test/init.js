@@ -573,7 +573,7 @@ function dijkstra_test(){
 	var G = graph().nodes(nodes).edges(edges).create();
 	console.log('G', G.nodes(), G.edges());
 
-	var dk = shortest_path_dikstra()
+	var dk = shortest_path_dijkstra()
 	.direction('undirected')
 	.init_metric(function(){return 0;})
 	.init_source_metric(function(){return Infinity;})

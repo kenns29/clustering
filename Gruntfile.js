@@ -55,6 +55,8 @@ module.exports = function(grunt) {
       build : {
         files : {
           'dist/concat/dmjs.js' : ['src/js/dev/export.js',
+          'src/js/dev/shortest_path_dijkstra.js',
+          'src/js/dev/graph.js',
           'src/js/dev/ClusterEvaluation.js', 
           'src/js/dev/data_utils.js',
           'src/js/dev/distance_metrics.js',

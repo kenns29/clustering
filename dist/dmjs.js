@@ -25,6 +25,386 @@ var dm = {};
 
 
 
+function shortest_path_dijkstra(){
+	var graph;
+	var source, target;
+	/*
+	* 1) in
+	* 2) out
+	* 3) undirected
+	*/
+	var direction = 'undirected';
+
+	function value_comparator(v1, v2){
+		return v1 - v2;
+	}
+	function node_comparator(n1, n2){
+		return value_comparator(n1.dk_status.metric, n2.dk_status.metric); 
+	}
+	function init_metric(){
+		return Infinity;
+	}
+	function init_source_metric(){
+		return 0;
+	}
+	//this is testing the undirected only
+	function single_source_undirected(){
+		var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new PriorityQueue({comparator: node_comparator});
+		
+		for(i = 0; i < nodes.length; i++){
+			Q.queue(nodes[i]);
+		}
+		
+		while(Q.length && Q.length> 0){
+			cur_node = Q.dequeue();
+			
+			for(i = 0; i < cur_node.edges.length; i++){
+				edge = cur_node.edges[i];
+				neighbor = cur_node.neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
+	}
+
+	function single_source_in(){
+		var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new PriorityQueue({comparator: node_comparator});
+		
+		for(i = 0; i < nodes.length; i++){
+			Q.queue(nodes[i]);
+		}
+
+		while(Q.length && Q.length > 0){
+			cur_node = Q.dequeue();
+			for(i = 0; i < cur_node.in_edges.length; i++){
+				edge = cur_node.in_edges[i];
+				neighbor = cur_node.in_neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
+	}
+
+	function single_source_out(){
+				var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new PriorityQueue({comparator: node_comparator});
+		
+		for(i = 0; i < nodes.length; i++){
+			Q.queue(nodes[i]);
+		}
+
+		while(Q.length && Q.length > 0){
+			cur_node = Q.dequeue();
+			for(i = 0; i < cur_node.out_edges.length; i++){
+				edge = cur_node.out_edges[i];
+				neighbor = cur_node.out_neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
+	}
+	function init_nodes(nodes){
+		for(i = 0; i < nodes.length; i++){
+			nodes[i].dk_status = {};
+			nodes[i].dk_status.backpointer = null;
+			if(nodes[i] === source){
+				nodes[i].dk_status.metric = init_source_metric();
+			}
+			else{
+				nodes[i].dk_status.metric = init_metric();
+			}
+		}
+	}
+
+	function all_paths(){
+		var i, j;
+		var nodes = graph.nodes();
+		var node;
+		var paths = [];
+		var path;
+		for(i = 0; i < nodes.length; i++){
+			path = [];
+			node = nodes[i];
+			do{
+				path.unshift(node);
+			}while(node = node.dk_status.backpointer);
+
+			paths.push(path);
+		}
+		return paths;
+	}
+
+	function ret(){
+		if(direction === 'undirected')
+			single_source_undirected();
+		else if(direction === 'in')
+			single_source_in();
+		else if(direction === 'out')
+			single_source_out();
+		else
+			single_source_out();
+		return all_paths();
+	}
+
+	ret.graph = function(_){
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+
+	ret.source = function(_){
+		return arguments.length > 0 ? (source =  _, ret) : source;
+	};
+
+	ret.target = function(_){
+		return arguments.length > 0 ? (target = _, ret) : target;
+	};
+
+	ret.direction = function(_){
+		return arguments.length > 0 ? (direction = _, ret) : direction;
+	};
+
+	ret.comparator = function(_){
+		if(arguments.length > 0) value_comparator = _;
+		return ret;
+	};
+
+	ret.init_metric = function(_){
+		if(arguments.length > 0) init_metric = _;
+		return ret;
+	};
+
+	ret.init_source_metric = function(_){
+		if(arguments.length > 0) init_source_metric = _;
+		return ret;
+	};
+
+	return ret;
+}
+
+dm.shortest_path_dijkstra = shortest_path_dijkstra;
+
+function graph(){
+	/*
+	* node {id, name}
+	* edge {source, target, value}
+	*/
+	var nodes, edges;
+
+	var edge_map = d3.map();
+	var init_id = false;
+
+	function id_accessor(d){
+		return d.id;
+	}
+
+	/*
+	* Init the graph given edges and nodes
+	*/
+	function create(){
+		var i;
+		var node, edge;
+		var source, target;
+
+		if(init_id){
+			for(i = 0; i < nodes.length; i++){
+				nodes[i].id = i;
+			}
+		}
+
+		edge_map = d3.map(edges, function(d){
+			return id_accessor(d.source.id) + '-' + id_accessor(d.target.id); 
+		});
+
+		for(i = 0; i < nodes.length; i++){
+			node = nodes[i];
+			node.edges = [];
+			node.in_edges = [];
+			node.out_edges = [];
+			node.all_neighbors = all_neighbors_OF_Node;
+			node.all_in_neighbors = all_in_neighbors_OF_Node;
+			node.all_out_neighbors = all_out_neighbors_OF_Node;
+			node.neighbor = neighbor_OF_Node;
+			node.in_neighbor = in_neighbor_OF_Node;
+			node.out_neighbor = out_neighbor_OF_Node;
+		}
+
+		for(i = 0; i < edges.length; i++){
+			edge = edges[i];
+			source = edge.source;
+			target = edge.target;
+
+			source.edges.push(edge);
+			target.edges.push(edge);
+			source.out_edges.push(edge);
+			target.in_edges.push(edge);
+		}
+		return ret;
+	}
+    
+    function edge(n1, n2){
+    	return edge_from_nodes(n1, n2);
+    }
+
+    function edge_from_nodes(n1, n2){
+    	var key = edge_key_from_nodes(n1, n2);
+    	return edge_map.get(key);
+    }
+
+    function edge_from_ids(id1, id2){
+    	var key = edge_key_from_ids(id1, id2);
+    	return edge_map.get(key);
+    }
+
+    function edge_key_from_ids(id1, id2){
+    	return id1 + '-' + id2;
+    }
+
+    function edge_key_from_nodes(n1, n2){
+    	var id1 = id_accessor(n1);
+    	var id2 = id_accessor(n2);
+    	return edge_key_from_ids(id1, id2);
+    }
+
+    function all_in_neighbors(node){
+		return node.in_edges.map(function(d, i){
+			return d.source;
+		});  	
+    }
+
+    function all_out_neighbors(node){
+    	return node.out_edges.map(function(d, i){
+    		return d.target;
+    	});
+    }
+
+    function all_neighbors(node){
+    	var neighbors = [];
+    	var edge;
+    	var i;
+    	for(i = 0; i < node.edges.length; i++){
+    		edge = node.edges[i];
+    		neighbors.push(neighbor(node, edge));
+    	}
+    	return neighbors;
+    } 
+
+    function neighbor(node, edge){
+    	if(edge.source === node){
+    		return edge.target;
+    	}
+    	else if(edge.target === node){
+    		return edge.source;
+    	}
+    	else{
+    		return null;
+    	}
+    }
+
+    function in_neighbor(node, edge){
+    	if(edge.target === node){
+    		return edge.source;
+    	}
+    	else{
+    		return null;
+    	}
+    }
+
+    function out_neighbor(node, edge){
+    	if(edge.source === node){
+    		return edge.target;
+    	}
+    	else{
+    		return null;
+    	}
+    }
+
+	var ret = {
+		'nodes' : function(_){
+			return arguments.length > 0 ? (nodes = _, this) : nodes;
+		},
+		'edges' : function(_){
+			return arguments.length > 0 ? (edges = _, this) : edges;
+		}, 
+		'id' : function(_){
+			if(arguments.length > 0) id_accessor = _;
+			return this;
+		},
+		'init_id' : function(_){
+			init_id = _; return this;
+		},
+		'create' : create,
+		'edge' : edge
+	};
+
+	return ret;
+
+
+	//Utilities
+
+	//Template function for node
+	function all_in_neighbors_OF_Node(){
+		return all_in_neighbors(this);
+	}
+
+	function all_out_neighbors_OF_Node(){
+		return all_out_neighbors(this);
+	}
+
+	function all_neighbors_OF_Node(){
+		return all_neighbors(this);
+	}
+
+	function neighbor_OF_Node(edge){
+		return neighbor(this, edge);
+	}
+
+	function in_neighbor_OF_Node(edge){
+		return in_neighbor(this, edge);
+	}
+
+	function out_neighbor_OF_Node(edge){
+		return out_neighbor(this, edge);
+	}
+}
+
+dm.graph = graph;
 function ClusterEvaluation(){
 	/*
 	* Data needs to be in the following format:

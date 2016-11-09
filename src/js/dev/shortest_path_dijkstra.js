@@ -1,4 +1,4 @@
-function shortest_path_dikstra(){
+function shortest_path_dijkstra(){
 	var graph;
 	var source, target;
 	/*
@@ -187,7 +187,8 @@ function shortest_path_dikstra(){
 		if(arguments.length > 0) init_source_metric = _;
 		return ret;
 	};
-	
+
 	return ret;
 }
 
+dm.shortest_path_dijkstra = shortest_path_dijkstra;
