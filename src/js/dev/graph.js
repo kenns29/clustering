@@ -37,16 +37,7 @@ function graph(){
 			node.in_edges = [];
 			node.out_edges = [];
 
-			node._all_neighbors = all_neighbors(node);
-			node._all_in_neighbors = all_in_neighbors(node);
-			node._all_out_neighbors = all_out_neighbors(node);
 
-			node.all_neighbors = function(){return this._all_neighbors;};
-			node.all_in_neighbors = function(){return this._all_in_neighbors;};
-			node.all_out_neighbors = function(){return this._all_out_neighbors;};
-			node.neighbor = function(){return neighbor(this, edge);};
-			node.in_neighbor = function(){return in_neighbor(this, edge);};
-			node.out_neighbor = function(){return out_neighbor(this, edge);};
 		}
 
 		for(i = 0; i < edges.length; i++){
@@ -58,6 +49,20 @@ function graph(){
 			target.edges.push(edge);
 			source.out_edges.push(edge);
 			target.in_edges.push(edge);
+		}
+
+		for(i = 0; i < nodes.length; i++){
+			node = nodes[i];
+			node._all_neighbors = all_neighbors(node);
+			node._all_in_neighbors = all_in_neighbors(node);
+			node._all_out_neighbors = all_out_neighbors(node);
+
+			node.all_neighbors = function(){return this._all_neighbors;};
+			node.all_in_neighbors = function(){return this._all_in_neighbors;};
+			node.all_out_neighbors = function(){return this._all_out_neighbors;};
+			node.neighbor = function(){return neighbor(this, edge);};
+			node.in_neighbor = function(){return in_neighbor(this, edge);};
+			node.out_neighbor = function(){return out_neighbor(this, edge);};
 		}
 		return ret;
 	}
@@ -160,25 +165,7 @@ function graph(){
 		'edge' : edge
 	};
 
-	return ret;
-
-
-	//Utilities
-
-	//Template function for node
-	function all_in_neighbors_OF_Node(){
-		return all_in_neighbors(this);
-	}
-
-	function all_out_neighbors_OF_Node(){
-		return all_out_neighbors(this);
-	}
-
-	function all_neighbors_OF_Node(){
-		return all_neighbors(this);
-	}
-
-	
+	return ret;	
 }
 
 dm.graph = graph;

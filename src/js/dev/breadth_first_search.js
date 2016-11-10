@@ -61,8 +61,10 @@ function breadth_first_search(){
 					
 					Q.enqueue(neighbor);
 				}
-				neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
-				node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
+				if(node.bs_status.level < neighbor.bs_status.level){
+					neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
+					node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
+				}
 			});
 			visit(node);
 		}
