@@ -4,6 +4,7 @@ function graph(){
 	* edge {source, target, value}
 	*/
 	var nodes, edges;
+    var directed = true;
 
 	var edge_map = d3.map();
 	var init_id = false;
@@ -35,12 +36,17 @@ function graph(){
 			node.edges = [];
 			node.in_edges = [];
 			node.out_edges = [];
-			node.all_neighbors = all_neighbors_OF_Node;
-			node.all_in_neighbors = all_in_neighbors_OF_Node;
-			node.all_out_neighbors = all_out_neighbors_OF_Node;
-			node.neighbor = neighbor_OF_Node;
-			node.in_neighbor = in_neighbor_OF_Node;
-			node.out_neighbor = out_neighbor_OF_Node;
+
+			node._all_neighbors = all_neighbors(node);
+			node._all_in_neighbors = all_in_neighbors(node);
+			node._all_out_neighbors = all_out_neighbors(node);
+
+			node.all_neighbors = function(){return this._all_neighbors;};
+			node.all_in_neighbors = function(){return this._all_in_neighbors;};
+			node.all_out_neighbors = function(){return this._all_out_neighbors;};
+			node.neighbor = function(){return neighbor(this, edge);};
+			node.in_neighbor = function(){return in_neighbor(this, edge);};
+			node.out_neighbor = function(){return out_neighbor(this, edge);};
 		}
 
 		for(i = 0; i < edges.length; i++){
@@ -147,6 +153,9 @@ function graph(){
 		'init_id' : function(_){
 			init_id = _; return this;
 		},
+		'directed' : function(_){
+			return arguments.length > 0 ? (directed = _, this) : directed;
+		},
 		'create' : create,
 		'edge' : edge
 	};
@@ -169,17 +178,7 @@ function graph(){
 		return all_neighbors(this);
 	}
 
-	function neighbor_OF_Node(edge){
-		return neighbor(this, edge);
-	}
-
-	function in_neighbor_OF_Node(edge){
-		return in_neighbor(this, edge);
-	}
-
-	function out_neighbor_OF_Node(edge){
-		return out_neighbor(this, edge);
-	}
+	
 }
 
 dm.graph = graph;
