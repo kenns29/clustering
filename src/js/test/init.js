@@ -682,18 +682,40 @@ function breadth_first_search_test(){
 
 	var G = graph().nodes(nodes).edges(edges).create();
 	console.log('G', G.nodes(), G.edges());
+	var ebc = edge_betweenness_centrality().graph(G);
 
-	var bs = breadth_first_search().graph(G).source(G.nodes()[0]);
-	var tree = bs();
-	console.log(tree);
- //    visit_tree(tree);
-	// function visit_tree(tree){
-	// 	recurse(tree);
-	// 	function recurse(r){
-	// 		console.log(r.value.id, r.level);
-	// 		r.children.forEach(recurse);
-	// 	}
+	var tree = ebc();
+	var ptree = print_ready_tree(tree);
 
-	// }
-	// console.log('tree', tree);
+	console.log('ptree', JSON.stringify(ptree, null, 2));
+
+	function print_ready_tree(tree){
+		var ptree = copy_node(tree);
+	    recurse(tree, ptree);
+	    return ptree;
+		function recurse(r, pr){
+			if(r){
+				r.children.forEach(function(child){
+					var copy_child = copy_node(child);
+					pr.children.push(copy_child);
+					recurse(child, copy_child);
+				});
+			}
+		}
+
+		function copy_node(r){
+			return {
+				'id' : r.value.id,
+				'in_flow' : r.in_flow.map(function(d){
+					return d.value.id;
+				}),
+				'out_flow' : r.out_flow.map(function(d){
+					return d.value.id;
+				}),
+				'weight' : r.weight,
+				'children' : []
+			};
+		}
+	}
 }
+

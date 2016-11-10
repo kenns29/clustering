@@ -1,10 +1,10 @@
-function breadth_first_search(){
+function breadth_first(){
 	var graph;
 	var source;
 	var direction = 'undirected';
 
 	function visit(d){
-		console.log(d, d.id, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
+		console.log(d, d.id, d.bs_status.tree_node.weight, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
 	}
 
 	function init_nodes(nodes){
@@ -30,6 +30,7 @@ function breadth_first_search(){
 			level : 0,
 			in_flow : [],
 			out_flow : [],
+			weight : 1,
 			parent : null,
 			children : [],
 			value : source
@@ -48,6 +49,7 @@ function breadth_first_search(){
 						level : node.bs_status.level + 1,
 						in_flow : [],
 						out_flow : [],
+						weight : 0,
 						parent : node.bs_status.tree_node,
 						children : [],
 						value : neighbor
@@ -61,7 +63,8 @@ function breadth_first_search(){
 					
 					Q.enqueue(neighbor);
 				}
-				if(node.bs_status.level < neighbor.bs_status.level){
+				if(node.bs_status.level + 1 === neighbor.bs_status.level){
+					neighbor.bs_status.tree_node.weight += node.bs_status.tree_node.weight;
 					neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
 					node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
 				}
@@ -98,4 +101,4 @@ function breadth_first_search(){
 	return ret;
 }
 
-dm.breadth_first_search = breadth_first_search;
+dm.breadth_first = breadth_first;
