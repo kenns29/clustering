@@ -684,5 +684,16 @@ function breadth_first_search_test(){
 	console.log('G', G.nodes(), G.edges());
 
 	var bs = breadth_first_search().graph(G).source(G.nodes()[0]);
-	bs();
+	var tree = bs();
+	console.log(tree);
+    visit_tree(tree);
+	function visit_tree(tree){
+		recurse(tree);
+		function recurse(r){
+			console.log(r.value.id, r.level);
+			r.children.forEach(recurse);
+		}
+
+	}
+	// console.log('tree', tree);
 }
