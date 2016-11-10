@@ -28,6 +28,9 @@ function breadth_first_search(){
 
 		tree_node = {
 			level : 0,
+			in_flow : [],
+			out_flow : [],
+			parent : null,
 			children : [],
 			value : source
 		};
@@ -45,6 +48,9 @@ function breadth_first_search(){
 
 					tree_node = {
 						level : node.bs_status.level + 1,
+						in_flow : [],
+						out_flow : [],
+						parent : node.bs_status.tree_node,
 						children : [],
 						value : neighbor
 					};
@@ -57,6 +63,8 @@ function breadth_first_search(){
 					
 					Q.enqueue(neighbor);
 				}
+				neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
+				node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
 			});
 		}
 		clean_up();
