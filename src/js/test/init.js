@@ -684,38 +684,12 @@ function breadth_first_search_test(){
 	console.log('G', G.nodes(), G.edges());
 	var ebc = edge_betweenness_centrality().graph(G);
 
-	var tree = ebc();
-	var ptree = print_ready_tree(tree);
+	ebc();
+	console.log('edge', G.edges());
+	// var ptree = print_ready_tree(tree);
 
-	console.log('ptree', JSON.stringify(ptree, null, 2));
+	// console.log('ptree', JSON.stringify(ptree, null, 2));
+	
 
-	function print_ready_tree(tree){
-		var ptree = copy_node(tree);
-	    recurse(tree, ptree);
-	    return ptree;
-		function recurse(r, pr){
-			if(r){
-				r.children.forEach(function(child){
-					var copy_child = copy_node(child);
-					pr.children.push(copy_child);
-					recurse(child, copy_child);
-				});
-			}
-		}
-
-		function copy_node(r){
-			return {
-				'id' : r.value.id,
-				'in_flow' : r.in_flow.map(function(d){
-					return d.value.id;
-				}),
-				'out_flow' : r.out_flow.map(function(d){
-					return d.value.id;
-				}),
-				'weight' : r.weight,
-				'children' : []
-			};
-		}
-	}
 }
 

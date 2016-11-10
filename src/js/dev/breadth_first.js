@@ -4,7 +4,7 @@ function breadth_first(){
 	var direction = 'undirected';
 
 	function visit(d){
-		console.log(d, d.id, d.bs_status.tree_node.weight, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
+		// console.log(d, d.id, d.bs_status.tree_node.weight, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
 	}
 
 	function init_nodes(nodes){

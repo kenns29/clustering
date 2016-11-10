@@ -27,8 +27,11 @@ function graph(){
 			}
 		}
 
-		edge_map = d3.map(edges, function(d){
-			return id_accessor(d.source.id) + '-' + id_accessor(d.target.id); 
+		edges.forEach(function(edge){
+			edge.id = edge_key_from_nodes(edge.source, edge.target);
+		});
+		edges.forEach(function(edge){
+			edge_map.set(edge.id, edge);
 		});
 
 		for(i = 0; i < nodes.length; i++){
@@ -36,8 +39,6 @@ function graph(){
 			node.edges = [];
 			node.in_edges = [];
 			node.out_edges = [];
-
-
 		}
 
 		for(i = 0; i < edges.length; i++){
@@ -79,6 +80,24 @@ function graph(){
     function edge_from_ids(id1, id2){
     	var key = edge_key_from_ids(id1, id2);
     	return edge_map.get(key);
+    }
+
+    function undirected_edge(n1, n2){
+    	return undirected_edge_from_nodes(n1,n2);
+    }
+
+    function undirected_edge_from_nodes(n1, n2){
+    	var key = edge_key_from_nodes(n1, n2);
+    	var edge = edge_map.get(key);
+    	if(edge) return edge;
+    	return edge_map.get(edge_key_from_nodes(n2, n1));
+    }
+
+    function undirected_edge_from_ids(id1, id2){
+    	var key = edge_key_from_ids(id1, id2);
+    	var edge = edge_map.get(key);
+    	if(edge) return edge;
+    	return edge_map.get(edge_key_from_ids(id2, id1));
     }
 
     function edge_key_from_ids(id1, id2){
@@ -162,7 +181,8 @@ function graph(){
 			return arguments.length > 0 ? (directed = _, this) : directed;
 		},
 		'create' : create,
-		'edge' : edge
+		'edge' : edge,
+		'undirected_edge' : undirected_edge
 	};
 
 	return ret;	
