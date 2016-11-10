@@ -4,7 +4,7 @@ function breadth_first_search(){
 	var direction = 'undirected';
 
 	function visit(d){
-		console.log(d.id, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
+		console.log(d, d.id, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
 	}
 
 	function init_nodes(nodes){
@@ -41,8 +41,6 @@ function breadth_first_search(){
 		Q.enqueue(source);
 		while(!Q.empty()){
 			node = Q.dequeue();
-			visit(node);
-			
 			node.all_neighbors().forEach(function(neighbor){
 				if(!neighbor.bs_status.visited){
 
@@ -66,6 +64,7 @@ function breadth_first_search(){
 				neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
 				node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
 			});
+			visit(node);
 		}
 		clean_up();
 		return tree;
