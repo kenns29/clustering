@@ -40,6 +40,7 @@ function girvan_newman(){
 		tree_node.m = communities[0].length;
 		var level = graph.nodes().length + 10;
 		var id = 0;
+		var name;
 		while(graph.edges().length > 0){
 			ebc = edge_betweenness_centrality().graph(graph);
 		
@@ -72,11 +73,15 @@ function girvan_newman(){
 				}
 				children_ids = pre_communities[pre_communities.break_id].children_ids;
 				for(i = 0; i < children_ids.length; i++){
+					name = '';
 					community = communities[children_ids[i]];
+					if(community.length === 1){
+						name = community[0].name;
+					}
 					tree_node.children.push({
 						id : ++id,
 						com_id : community.id,
-						name : '',
+						name : name,
 						value: {
 							nodes : community
 						},
