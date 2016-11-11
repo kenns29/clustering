@@ -5,6 +5,7 @@ function girvan_newman(){
 	function execute(){
 		var i, j;
 		var tree, tree_node;
+		var ebc;
 		var clone_edges = graph.edges().slice(0);
 
 		tree_node = {
@@ -14,8 +15,21 @@ function girvan_newman(){
 		};
 		tree = tree_node;
 
-		var ebc = edge_betweenness_centrality().graph(graph);
+
+		
+		var stack = new Array();
+
+
+		var communities = communitiy_detection(graph);
+		for(i = 0; i < communities.length; i++){
+
+		}
+
+
+		ebc = edge_betweenness_centrality().graph(graph);
+		
 		ebc();
+
 
 		var max = -Infinity;
 		var max_edge_index = 0;
@@ -28,7 +42,7 @@ function girvan_newman(){
 
 		graph.remove_edge(graph.edges()[max_edge_index]);
 
-		var communities = communitiy_detection(graph);
+		
 
 		console.log('communities', communities);
 
