@@ -70,6 +70,7 @@ module.exports = function(grunt) {
             'src/js/dev/SparseVector.js',
             'src/js/dev/statistic.js',
             'src/js/dev/utils.js',
+            'src/js/dev/queue.js',
             'src/js/dev/return.js'
           ]
         }
