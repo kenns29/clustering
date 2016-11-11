@@ -26,6 +26,11 @@ function girvan_newman(){
 			}
 		});
 
+		graph.remove_edge(graph.edges()[max_edge_index]);
+
+		var communities = communitiy_detection(graph);
+
+		console.log('communities', communities);
 
 	}
 
@@ -59,7 +64,7 @@ function girvan_newman(){
 				node = stack.pop();
 				neighbors = node.all_neighbors();
 				for(i = 0; i < neighbors.length; i++){
-					neighbor = node.neighbors[i];
+					neighbor = neighbors[i];
 					if(!visited_nodes.has(neighbor.id)){
 						visited_nodes.add(neighbor.id);
 						node_map.remove(neighbor.id);
@@ -75,7 +80,7 @@ function girvan_newman(){
 
 
 	function ret(){
-
+		execute();
 	}
 
 	ret.graph = function(_){

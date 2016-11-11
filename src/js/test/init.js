@@ -681,15 +681,16 @@ function breadth_first_search_test(){
 	];
 
 	var G = graph().nodes(nodes).edges(edges).create();
-	console.log('G', G.nodes(), G.edges());
-	var ebc = edge_betweenness_centrality().graph(G);
+	// console.log('G', G.nodes(), G.edges());
+	// var ebc = edge_betweenness_centrality().graph(G);
 
-	ebc();
-	console.log('edge', G.edges());
+	// ebc();
+	// console.log('edge', G.edges());
 	// var ptree = print_ready_tree(tree);
 
 	// console.log('ptree', JSON.stringify(ptree, null, 2));
-	
+	var ge = girvan_newman().graph(G);
+	ge();
 
 }
 

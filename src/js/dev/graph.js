@@ -119,6 +119,7 @@ function graph(){
     	}
 
     	edge_map.remove(edge.id);
+    	return ret;
     }
 
     function edge(n1, n2){
