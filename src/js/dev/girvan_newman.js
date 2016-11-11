@@ -36,15 +36,18 @@ function girvan_newman(){
 			return d.id;
 		});
 
-		for(i = 0; i < nodes.length; i++){
-			node = nodes[i];
-
+		var source;
+		var communities = [];
+		if(!node_map.empty()){
+			source = node_map.values()[0];
+			communities.push(community(source));
 		}
 
-
-		function visit_node(source){
+		return communities;
+		function community(source){
 			var i;
 			var node;
+			var community_nodes = [];
 			var neighbor;
 			var neighbors;
 			var visited_nodes = d3.set();
@@ -59,9 +62,12 @@ function girvan_newman(){
 					neighbor = node.neighbors[i];
 					if(!visited_nodes.has(neighbor.id)){
 						visited_nodes.add(neighbor.id);
+						node_map.remove(neighbor.id);
+						community_nodes.push(neighbor);
 					}
 				}
 			}			
+			return community_nodes;
 		}
 	}
 

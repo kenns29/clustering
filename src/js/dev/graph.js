@@ -74,14 +74,39 @@ function graph(){
     function remove_edge(edge){
     	var i;
     	for(i = 0; i < edge.source._edges.length; i++){
-    		if(edge.id === edge.source.edges[i].id){
-    			edge.source.edges.splice(i, 1);
+    		if(edge.id === edge.source._edges[i].id){
+    			edge.source._edges.splice(i, 1);
     			break;
     		}
     	}
 
-    	for(i = 0; i < )
-    	edge.source.edge
+    	for(i = 0; i < edge.source._out_edges.length; i++){
+    		if(edge.id === edge.source._out_edges[i].id){
+    			edge.source._out_edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	for(i = 0; i < edge.target._in_edges.length; i++){
+    		if(edge.id === edge.target._in_edges[i].id){
+    			edge.target._in_edges.splice(i, 1);
+    			break;
+    		}
+    	}
+    	edge.source._all_neighbors = all_neighbors(edge.source);
+    	edge.target._all_neighbors = all_neighbors(edge.target);
+
+    	edge.source._all_out_neighbors = all_out_neighbors(edge.source);
+    	edge.target._all_in_neighbors = all_in_neighbors(edge.target);
+    	
+    	for(i = 0; i < edges.length; i++){
+    		if(edge === edges[i]){
+    			edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	edge_map.remove(edge.id);
     }
 
     function edge(n1, n2){
