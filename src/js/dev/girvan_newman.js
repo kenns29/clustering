@@ -1,20 +1,36 @@
 function girvan_newman(){
 	var graph;
 
+	var node_to_community = d3.map();
 
 	function execute(){
 		var i, j;
 		var tree, tree_node;
+		var node;
 		var edge;
 		var ebc;
 		var clone_edges = graph.edges().slice(0);
+		var children_ids;
+		var max, max_edge_index;
+		var community;
+
+		for(i = 0; i < graph.nodes().length; i++){
+			node = graph.nodes()[i];
+			node_to_community.set(node.id, 0);
+		}
 
 		tree_node = {
 			name : '',
-			value : null,
+			value : {
+				nodes : []
+			},
 			children : []
 		};
 		tree = tree_node;
+
+		var communities = [graph.nodes()];
+		var pre_communities = communities;
+		tree_node.value.nodes = communities[0];
 
 		while(graph.edges().length > 0){
 			ebc = edge_betweenness_centrality().graph(graph);
@@ -22,8 +38,8 @@ function girvan_newman(){
 			ebc();
 
 
-			var max = -Infinity;
-			var max_edge_index = 0;
+			max = -Infinity;
+			max_edge_index = 0;
 
 
 			graph.edges().forEach(function(edge, i){
@@ -36,11 +52,30 @@ function girvan_newman(){
 			console.log('edge', edge.id);
 			graph.remove_edge(edge);
 
-			console.log('communities', communitiy_detection(graph));
+			pre_communities = communities;
+			communities = communitiy_detection(graph, communities);
+			
+			if(pre_communities.length < communities.length){
+
+				children_ids = pre_communities[pre_communities.break_id].children_ids;
+				for(i = 0; i < children_ids; i++){
+					community = communities[children_ids[i]];
+				}
+
+
+				tree_node = {
+					name : '',
+					value : {
+						nodes : []
+					},
+					children : []
+				};
+			}
+			console.log('communities', communities);
 		}
 	}
 
-	function communitiy_detection(graph){
+	function communitiy_detection(graph, parent_communities){
 		var i, node;
 		var nodes = graph.nodes();
 		var node_map = d3.map(nodes, function(d){
@@ -48,13 +83,46 @@ function girvan_newman(){
 		});
 
 		var source;
+		var source_com_id;
+		//stores the current set of community ids
+		var com_ids = d3.set();
 		var communities = [];
+		var com;
+		var com_id;
 		while(!node_map.empty()){
 			source = node_map.values()[0];
-			communities.push(community(source));
+			//get the current community id for the node
+			source_com_id = node_to_community.get(source.id);
+			//if the source node has a community id that's already been used
+			if(com_ids.has(source_com_id)){
+				//create a new id for the community
+				com_id = parent_communities.length;
+				//mark the id for the community to be splited 
+				parent_communities.break_id = source_com_id;
+				parent_communities[source_com_id].children_ids = [source_com_id, com_id];
+			}
+			else{
+				//use the current id
+				com_id = source_com_id;
+				//add the id to the community set indicating the id is already used
+				com_ids.add(com_id);
+			}
+			com = community(source);
+			com.id = com_id;
+			com.parent_id = source_com_id;
+			communities[com_id] = com;
 		}
 
+		//update the node to community map
+		communities.forEach(function(community, i){
+			community.forEach(function(node, j){
+				node_to_community.set(node.id, community.id);
+			});
+		});
+
 		return communities;
+
+		//depth first search to detect community given a source node
 		function community(source){
 			var i;
 			var node;
@@ -65,6 +133,7 @@ function girvan_newman(){
 
 			var stack = new Array();
 			stack.push(source);
+
 			visited_nodes.add(source.id);
 			node_map.remove(source.id);
 			community_nodes.push(source);
@@ -76,8 +145,10 @@ function girvan_newman(){
 					neighbor = neighbors[i];
 					if(!visited_nodes.has(neighbor.id)){
 						visited_nodes.add(neighbor.id);
+
 						node_map.remove(neighbor.id);
 						community_nodes.push(neighbor);
+
 						stack.push(neighbor);
 					}
 				}
