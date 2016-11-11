@@ -25,6 +25,443 @@ var dm = {};
 
 
 
+function girvan_newman(){
+	var graph;
+
+	var node_to_community = d3.map();
+
+	function execute(){
+		var i, j;
+		var tree, tree_node;
+		var node;
+		var edge;
+		var ebc;
+		var clone_edges = graph.edges().slice(0);
+		var children_ids;
+		var max, max_edge_index;
+		var community;
+		var leave;
+
+		for(i = 0; i < graph.nodes().length; i++){
+			node = graph.nodes()[i];
+			node_to_community.set(node.id, 0);
+		}
+
+		tree_node = {
+			com_id : 0,
+			name : '',
+			value : {
+				nodes : []
+			},
+			children : []
+		};
+		tree = tree_node;
+
+		var communities = [graph.nodes()];
+		communities.id = 0;
+		var pre_communities = communities;
+		tree_node.value.nodes = communities[0];
+
+		while(graph.edges().length > 0){
+			ebc = edge_betweenness_centrality().graph(graph);
+		
+			ebc();
+
+
+			max = -Infinity;
+			max_edge_index = 0;
+
+
+			graph.edges().forEach(function(edge, i){
+				if(max < edge.edge_betweenness){
+					max_edge_index = i;
+					max = edge.edge_betweenness;
+				}
+			});
+			edge = graph.edges()[max_edge_index];
+			graph.remove_edge(edge);
+
+			pre_communities = communities;
+			communities = communitiy_detection(graph, communities);
+			
+			if(pre_communities.length < communities.length){
+				leave = tree_leave(tree);
+				for(i = 0; i < leave.length; i++){
+					if(leave[i].com_id === pre_communities.break_id){
+						tree_node = leave[i];
+						break;
+					}
+				}
+				children_ids = pre_communities[pre_communities.break_id].children_ids;
+				for(i = 0; i < children_ids.length; i++){
+					community = communities[children_ids[i]];
+					tree_node.children.push({
+						com_id : community.id,
+						name : '',
+						value: {
+							nodes : community
+						},
+						children : []
+					});
+				}
+			}
+		}
+
+		graph.edges(clone_edges);
+		graph.create();
+		return tree;
+	}
+
+	function communitiy_detection(graph, parent_communities){
+		var i, node;
+		var nodes = graph.nodes();
+		var node_map = d3.map(nodes, function(d){
+			return d.id;
+		});
+
+		var source;
+		var source_com_id;
+		//stores the current set of community ids
+		var com_ids = d3.set();
+		var communities = [];
+		var com;
+		var com_id;
+		while(!node_map.empty()){
+			source = node_map.values()[0];
+			//get the current community id for the node
+			source_com_id = node_to_community.get(source.id);
+			//if the source node has a community id that's already been used
+			if(com_ids.has(source_com_id)){
+				//create a new id for the community
+				com_id = parent_communities.length;
+				//mark the id for the community to be splited 
+				parent_communities.break_id = source_com_id;
+				parent_communities[source_com_id].children_ids = [source_com_id, com_id];
+			}
+			else{
+				//use the current id
+				com_id = source_com_id;
+				//add the id to the community set indicating the id is already used
+				com_ids.add(com_id);
+			}
+			com = community(source);
+			com.id = com_id;
+			com.parent_id = source_com_id;
+			communities[com_id] = com;
+		}
+
+		//update the node to community map
+		communities.forEach(function(community, i){
+			community.forEach(function(node, j){
+				node_to_community.set(node.id, community.id);
+			});
+		});
+
+		return communities;
+
+		//depth first search to detect community given a source node
+		function community(source){
+			var i;
+			var node;
+			var community_nodes = [];
+			var neighbor;
+			var neighbors;
+			var visited_nodes = d3.set();
+
+			var stack = new Array();
+			stack.push(source);
+
+			visited_nodes.add(source.id);
+			node_map.remove(source.id);
+			community_nodes.push(source);
+
+			while(stack.length > 0){
+				node = stack.pop();
+				neighbors = node.all_neighbors();
+				for(i = 0; i < neighbors.length; i++){
+					neighbor = neighbors[i];
+					if(!visited_nodes.has(neighbor.id)){
+						visited_nodes.add(neighbor.id);
+
+						node_map.remove(neighbor.id);
+						community_nodes.push(neighbor);
+
+						stack.push(neighbor);
+					}
+				}
+			}			
+			return community_nodes;
+		}
+	}
+
+
+	function tree_leave(tree){
+		var leave = [];
+		recurse(tree);
+		return leave;
+		function recurse(r){
+			if(r){
+				if(!r.children || r.children.length === 0)
+					leave.push(r);
+				else
+					r.children.forEach(recurse);
+			}
+		}
+	}
+
+	function ret(){
+		return execute();
+	}
+
+	ret.graph = function(_){
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+
+	return ret;
+}
+
+dm.girvan_newman = girvan_newman;
+function edge_betweenness_centrality(){
+	var graph;
+	var edge;
+
+	function init_edge_betweenness(){
+		graph.edges().forEach(function(d){
+			d.edge_betweenness = 0;
+		});
+	}
+	function flow(){
+		init_edge_betweenness();
+		graph.nodes().forEach(function(node){
+			source_flow(node);
+		});
+	}
+
+	function source_flow(source){
+		var i, j;
+		var node;
+		var upper_node;
+		var upper_weight_sum;
+		var flow;
+		var edge;
+		var bs = breadth_first().graph(graph).source(source);
+		var tree = bs();
+		init_flow(tree);
+
+		var leave = flow_leave(tree);
+		leave.forEach(function(d){
+			leaf_flow(d, source);
+		});
+
+		leave.forEach(function(d){
+			edge_betweenness(d, source);
+		});
+	}
+
+	function edge_betweenness(leaf){
+		var i;
+		var node;
+		var in_node;
+		var edge;
+		var flow;
+		var stack = new Array();
+
+		stack.push(leaf);
+		while(stack.length > 0){
+			node = stack.pop();
+			if(!node.visited){
+				node.visited =true;
+				for(i = 0; i < node.in_flow.length; i++){
+					in_node = node.in_flow[i];
+					flow = node.flow * (in_node.weight / node.weight);
+
+					edge = graph.undirected_edge(node.value, in_node.value);
+					edge.edge_betweenness = edge.edge_betweenness ? flow + edge.edge_betweenness : flow;
+					
+					stack.push(in_node);
+				}
+			}
+		}
+
+	}
+
+	function leaf_flow(leaf){
+		var i, j;
+		var node;
+		var in_node;
+		var flow;
+		var stack = new Array();
+		stack.push(leaf);
+		while(stack.length > 0){
+			node = stack.pop();
+			for(i = 0; i < node.in_flow.length; i++){
+				in_node = node.in_flow[i];
+				stack.push(in_node);
+				in_node.flow += node.flow * (in_node.weight / node.weight);
+			}
+		}
+	}
+
+	function ret(){
+		return flow(graph.nodes()[0]);
+	}
+
+	ret.graph = function(_){
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+
+	return ret;
+
+	function init_flow(tree){
+		recurse(tree);
+		function recurse(r){
+			if(r){
+				r.flow = 1;
+				r.children.forEach(recurse);
+			}
+		}
+	}
+	function upper_level_nodes(cur_level){
+		var i;
+		var value;
+		var node;
+		var upper_level_map = d3.map();
+		for(i = 0; i < cur_level.length; i++){
+			node = cur_level[i];
+			upper_level_map.set(node.value.id, node);
+		}
+		return upper_level_map.values();
+	}
+
+	function tree_leave(tree){
+		var leave = [];
+		recurse(tree);
+		return leave;
+		function recurse(r){
+			if(r){
+				if(!r.children || r.children.length === 0)
+					leave.push(r);
+				else{
+					r.children.forEach(recurse);
+				}
+			}
+		}
+	}
+
+	function flow_leave(tree){
+		return tree_leave(tree).filter(function(d){
+			return d.out_flow.length === 0;
+		});
+	}
+}
+
+dm.edge_betweenness_centrality = edge_betweenness_centrality;
+
+
+function breadth_first(){
+	var graph;
+	var source;
+	var direction = 'undirected';
+
+	function visit(d){
+		// console.log(d, d.id, d.bs_status.tree_node.weight, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
+	}
+
+	function init_nodes(nodes){
+		nodes.forEach(function(d){
+			d.bs_status = {
+				visited : false,
+				level : 0,
+				tree_node : null
+			};
+		});
+	}
+
+	function search(){
+		//the minimum spaning tree that are returned
+		var tree;
+		var tree_node;
+		var node;
+		var Q = queue();
+		var nodes = graph.nodes();
+		init_nodes(nodes);
+
+		tree_node = {
+			level : 0,
+			in_flow : [],
+			out_flow : [],
+			weight : 1,
+			parent : null,
+			children : [],
+			value : source
+		};
+		tree = tree_node;
+
+		source.bs_status.tree_node = tree_node;
+		source.bs_status.visited = true;
+		Q.enqueue(source);
+		while(!Q.empty()){
+			node = Q.dequeue();
+			node.all_neighbors().forEach(function(neighbor){
+				if(!neighbor.bs_status.visited){
+
+					tree_node = {
+						level : node.bs_status.level + 1,
+						in_flow : [],
+						out_flow : [],
+						weight : 0,
+						parent : node.bs_status.tree_node,
+						children : [],
+						value : neighbor
+					};
+
+					neighbor.bs_status.visited = true;
+					neighbor.bs_status.level = node.bs_status.level + 1;
+					neighbor.bs_status.tree_node = tree_node;
+
+					node.bs_status.tree_node.children.push(tree_node);
+					
+					Q.enqueue(neighbor);
+				}
+				if(node.bs_status.level + 1 === neighbor.bs_status.level){
+					neighbor.bs_status.tree_node.weight += node.bs_status.tree_node.weight;
+					neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
+					node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
+				}
+			});
+			visit(node);
+		}
+		clean_up();
+		return tree;
+	}
+
+	function clean_up(){
+		graph.nodes().forEach(function(d){
+			delete d.bs_status;
+		});
+	}
+
+	function ret(){
+		return search();
+	}
+	ret.graph = function(_){
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+	ret.direction = function(_){
+		return arguments.length > 0 ? (direction = _, ret) : direction;
+	};
+	ret.visit = function(_){
+		if(arguments.length > 0) visit = _;
+		return ret;
+	};
+	ret.source = function(_){
+		return arguments.length > 0 ? (source = _, ret) : source;
+	};
+
+	return ret;
+}
+
+dm.breadth_first = breadth_first;
 function shortest_path_dijkstra(){
 	var graph;
 	var source, target;
@@ -92,8 +529,8 @@ function shortest_path_dijkstra(){
 		while(Q.length && Q.length> 0){
 			cur_node = Q.dequeue();
 			
-			for(i = 0; i < cur_node.edges.length; i++){
-				edge = cur_node.edges[i];
+			for(i = 0; i < cur_node.edges().length; i++){
+				edge = cur_node.edges()[i];
 				neighbor = cur_node.neighbor(edge);
 				alt = edge.value + cur_node.dk_status.metric;
 				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
@@ -124,8 +561,8 @@ function shortest_path_dijkstra(){
 
 		while(Q.length && Q.length > 0){
 			cur_node = Q.dequeue();
-			for(i = 0; i < cur_node.in_edges.length; i++){
-				edge = cur_node.in_edges[i];
+			for(i = 0; i < cur_node.in_edges().length; i++){
+				edge = cur_node.in_edges()[i];
 				neighbor = cur_node.in_neighbor(edge);
 				alt = edge.value + cur_node.dk_status.metric;
 				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
@@ -156,8 +593,8 @@ function shortest_path_dijkstra(){
 
 		while(Q.length && Q.length > 0){
 			cur_node = Q.dequeue();
-			for(i = 0; i < cur_node.out_edges.length; i++){
-				edge = cur_node.out_edges[i];
+			for(i = 0; i < cur_node.out_edges().length; i++){
+				edge = cur_node.out_edges()[i];
 				neighbor = cur_node.out_neighbor(edge);
 				alt = edge.value + cur_node.dk_status.metric;
 				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
@@ -257,6 +694,7 @@ function graph(){
 	* edge {source, target, value}
 	*/
 	var nodes, edges;
+    var directed = true;
 
 	var edge_map = d3.map();
 	var init_id = false;
@@ -279,21 +717,21 @@ function graph(){
 			}
 		}
 
-		edge_map = d3.map(edges, function(d){
-			return id_accessor(d.source.id) + '-' + id_accessor(d.target.id); 
+		edges.forEach(function(edge){
+			edge.id = edge_key_from_nodes(edge.source, edge.target);
+		});
+		edges.forEach(function(edge){
+			edge_map.set(edge.id, edge);
 		});
 
 		for(i = 0; i < nodes.length; i++){
 			node = nodes[i];
-			node.edges = [];
-			node.in_edges = [];
-			node.out_edges = [];
-			node.all_neighbors = all_neighbors_OF_Node;
-			node.all_in_neighbors = all_in_neighbors_OF_Node;
-			node.all_out_neighbors = all_out_neighbors_OF_Node;
-			node.neighbor = neighbor_OF_Node;
-			node.in_neighbor = in_neighbor_OF_Node;
-			node.out_neighbor = out_neighbor_OF_Node;
+			node._edges = [];
+			node._in_edges = [];
+			node._out_edges = [];
+			node.edges = function(){return this._edges;};
+			node.in_edges = function(){return this._in_edges;};
+			node.out_edges = function(){return this.out_edges;};
 		}
 
 		for(i = 0; i < edges.length; i++){
@@ -301,14 +739,86 @@ function graph(){
 			source = edge.source;
 			target = edge.target;
 
-			source.edges.push(edge);
-			target.edges.push(edge);
-			source.out_edges.push(edge);
-			target.in_edges.push(edge);
+			source._edges.push(edge);
+			target._edges.push(edge);
+			source._out_edges.push(edge);
+			target._in_edges.push(edge);
+		}
+
+		for(i = 0; i < nodes.length; i++){
+			node = nodes[i];
+			node._all_neighbors = all_neighbors(node);
+			node._all_in_neighbors = all_in_neighbors(node);
+			node._all_out_neighbors = all_out_neighbors(node);
+
+			node.all_neighbors = function(){return this._all_neighbors;};
+			node.all_in_neighbors = function(){return this._all_in_neighbors;};
+			node.all_out_neighbors = function(){return this._all_out_neighbors;};
+			node.neighbor = function(){return neighbor(this, edge);};
+			node.in_neighbor = function(){return in_neighbor(this, edge);};
+			node.out_neighbor = function(){return out_neighbor(this, edge);};
 		}
 		return ret;
 	}
     
+	function sub_graph(_nodes){
+		nodes = _nodes;
+		var node_map = d3.map(nodes, function(d){
+			return d.id;
+		});
+
+		edges = edges.filter(function(edge){
+			return node_map.has(edge.source.id) || node_map.has(edge.target.id);
+		});
+		return create();
+	}
+
+    function remove_edge(edge){
+    	var i;
+    	for(i = 0; i < edge.source._edges.length; i++){
+    		if(edge.id === edge.source._edges[i].id){
+    			edge.source._edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	for(i = 0; i < edge.target._edges.length; i++){
+    		if(edge.id === edge.target._edges[i].id){
+    			edge.target._edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	for(i = 0; i < edge.source._out_edges.length; i++){
+    		if(edge.id === edge.source._out_edges[i].id){
+    			edge.source._out_edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	for(i = 0; i < edge.target._in_edges.length; i++){
+    		if(edge.id === edge.target._in_edges[i].id){
+    			edge.target._in_edges.splice(i, 1);
+    			break;
+    		}
+    	}
+    	edge.source._all_neighbors = all_neighbors(edge.source);
+    	edge.target._all_neighbors = all_neighbors(edge.target);
+
+    	edge.source._all_out_neighbors = all_out_neighbors(edge.source);
+    	edge.target._all_in_neighbors = all_in_neighbors(edge.target);
+
+    	for(i = 0; i < edges.length; i++){
+    		if(edge === edges[i]){
+    			edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	edge_map.remove(edge.id);
+    	return ret;
+    }
+
     function edge(n1, n2){
     	return edge_from_nodes(n1, n2);
     }
@@ -323,6 +833,24 @@ function graph(){
     	return edge_map.get(key);
     }
 
+    function undirected_edge(n1, n2){
+    	return undirected_edge_from_nodes(n1,n2);
+    }
+
+    function undirected_edge_from_nodes(n1, n2){
+    	var key = edge_key_from_nodes(n1, n2);
+    	var edge = edge_map.get(key);
+    	if(edge) return edge;
+    	return edge_map.get(edge_key_from_nodes(n2, n1));
+    }
+
+    function undirected_edge_from_ids(id1, id2){
+    	var key = edge_key_from_ids(id1, id2);
+    	var edge = edge_map.get(key);
+    	if(edge) return edge;
+    	return edge_map.get(edge_key_from_ids(id2, id1));
+    }
+
     function edge_key_from_ids(id1, id2){
     	return id1 + '-' + id2;
     }
@@ -334,13 +862,13 @@ function graph(){
     }
 
     function all_in_neighbors(node){
-		return node.in_edges.map(function(d, i){
+		return node._in_edges.map(function(d, i){
 			return d.source;
 		});  	
     }
 
     function all_out_neighbors(node){
-    	return node.out_edges.map(function(d, i){
+    	return node._out_edges.map(function(d, i){
     		return d.target;
     	});
     }
@@ -349,8 +877,8 @@ function graph(){
     	var neighbors = [];
     	var edge;
     	var i;
-    	for(i = 0; i < node.edges.length; i++){
-    		edge = node.edges[i];
+    	for(i = 0; i < node._edges.length; i++){
+    		edge = node._edges[i];
     		neighbors.push(neighbor(node, edge));
     	}
     	return neighbors;
@@ -400,39 +928,17 @@ function graph(){
 		'init_id' : function(_){
 			init_id = _; return this;
 		},
+		'directed' : function(_){
+			return arguments.length > 0 ? (directed = _, this) : directed;
+		},
 		'create' : create,
-		'edge' : edge
+		'edge' : edge,
+		'undirected_edge' : undirected_edge,
+		'remove_edge' : remove_edge,
+		'sub_graph' : sub_graph
 	};
 
-	return ret;
-
-
-	//Utilities
-
-	//Template function for node
-	function all_in_neighbors_OF_Node(){
-		return all_in_neighbors(this);
-	}
-
-	function all_out_neighbors_OF_Node(){
-		return all_out_neighbors(this);
-	}
-
-	function all_neighbors_OF_Node(){
-		return all_neighbors(this);
-	}
-
-	function neighbor_OF_Node(edge){
-		return neighbor(this, edge);
-	}
-
-	function in_neighbor_OF_Node(edge){
-		return in_neighbor(this, edge);
-	}
-
-	function out_neighbor_OF_Node(edge){
-		return out_neighbor(this, edge);
-	}
+	return ret;	
 }
 
 dm.graph = graph;

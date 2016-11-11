@@ -13,6 +13,7 @@ function girvan_newman(){
 		var children_ids;
 		var max, max_edge_index;
 		var community;
+		var leave;
 
 		for(i = 0; i < graph.nodes().length; i++){
 			node = graph.nodes()[i];
@@ -20,6 +21,7 @@ function girvan_newman(){
 		}
 
 		tree_node = {
+			com_id : 0,
 			name : '',
 			value : {
 				nodes : []
@@ -29,6 +31,7 @@ function girvan_newman(){
 		tree = tree_node;
 
 		var communities = [graph.nodes()];
+		communities.id = 0;
 		var pre_communities = communities;
 		tree_node.value.nodes = communities[0];
 
@@ -49,30 +52,37 @@ function girvan_newman(){
 				}
 			});
 			edge = graph.edges()[max_edge_index];
-			console.log('edge', edge.id);
 			graph.remove_edge(edge);
 
 			pre_communities = communities;
 			communities = communitiy_detection(graph, communities);
 			
 			if(pre_communities.length < communities.length){
-
-				children_ids = pre_communities[pre_communities.break_id].children_ids;
-				for(i = 0; i < children_ids; i++){
-					community = communities[children_ids[i]];
+				leave = tree_leave(tree);
+				for(i = 0; i < leave.length; i++){
+					if(leave[i].com_id === pre_communities.break_id){
+						tree_node = leave[i];
+						break;
+					}
 				}
-
-
-				tree_node = {
-					name : '',
-					value : {
-						nodes : []
-					},
-					children : []
-				};
+				children_ids = pre_communities[pre_communities.break_id].children_ids;
+				for(i = 0; i < children_ids.length; i++){
+					community = communities[children_ids[i]];
+					tree_node.children.push({
+						com_id : community.id,
+						name : '',
+						value: {
+							nodes : community
+						},
+						children : []
+					});
+				}
 			}
-			console.log('communities', communities);
 		}
+
+		graph.edges(clone_edges);
+		graph.create();
+		return tree;
 	}
 
 	function communitiy_detection(graph, parent_communities){
@@ -158,10 +168,22 @@ function girvan_newman(){
 	}
 
 
-
+	function tree_leave(tree){
+		var leave = [];
+		recurse(tree);
+		return leave;
+		function recurse(r){
+			if(r){
+				if(!r.children || r.children.length === 0)
+					leave.push(r);
+				else
+					r.children.forEach(recurse);
+			}
+		}
+	}
 
 	function ret(){
-		execute();
+		return execute();
 	}
 
 	ret.graph = function(_){
@@ -170,3 +192,5 @@ function girvan_newman(){
 
 	return ret;
 }
+
+dm.girvan_newman = girvan_newman;

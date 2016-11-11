@@ -690,11 +690,41 @@ function breadth_first_search_test(){
 
 	// console.log('ptree', JSON.stringify(ptree, null, 2));
 	var ge = girvan_newman().graph(G);
-	ge();
+	var tree = ge();
+	console.log('tree', tree);
 
+	var pt = print_tree(tree, girvan_newman_copy_node);
+	console.log(JSON.stringify(pt, null, 2));
+	function girvan_newman_copy_node(r){
+		return {
+			name : r.name,
+			com_id : r.com_id,
+			value : {
+				nodes : r.value.nodes.map(function(d){
+					return d.id;
+				})
+			},
+			children : []
+		};
+	}
 }
 
-function print_ready_tree(tree){
+
+function print_tree(tree, copy_node){
+	var ptree = copy_node(tree);
+    recurse(tree, ptree);
+    return ptree;
+	function recurse(r, pr){
+		if(r){
+			r.children.forEach(function(child){
+				var copy_child = copy_node(child);
+				pr.children.push(copy_child);
+				recurse(child, copy_child);
+			});
+		}
+	}
+}
+function print_ready_tree(tree, copy_node){
 	var ptree = copy_node(tree);
     recurse(tree, ptree);
     return ptree;

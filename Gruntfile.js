@@ -54,19 +54,24 @@ module.exports = function(grunt) {
     concat : {
       build : {
         files : {
-          'dist/concat/dmjs.js' : ['src/js/dev/export.js',
-          'src/js/dev/shortest_path_dijkstra.js',
-          'src/js/dev/graph.js',
-          'src/js/dev/ClusterEvaluation.js', 
-          'src/js/dev/data_utils.js',
-          'src/js/dev/distance_metrics.js',
-          'src/js/dev/Evaluation.js',
-          'src/js/dev/HierachicalCluster.js',
-          'src/js/dev/KMean.js',
-          'src/js/dev/SparseVector.js',
-          'src/js/dev/statistic.js',
-          'src/js/dev/utils.js',
-          'src/js/dev/return.js']
+          'dist/concat/dmjs.js' : [
+            'src/js/dev/export.js',
+            'src/js/dev/girvan_newman.js',
+            'src/js/dev/edge_betweenness_centrality.js',
+            'src/js/dev/breadth_first.js',
+            'src/js/dev/shortest_path_dijkstra.js',
+            'src/js/dev/graph.js',
+            'src/js/dev/ClusterEvaluation.js', 
+            'src/js/dev/data_utils.js',
+            'src/js/dev/distance_metrics.js',
+            'src/js/dev/Evaluation.js',
+            'src/js/dev/HierachicalCluster.js',
+            'src/js/dev/KMean.js',
+            'src/js/dev/SparseVector.js',
+            'src/js/dev/statistic.js',
+            'src/js/dev/utils.js',
+            'src/js/dev/return.js'
+          ]
         }
       }
     },
