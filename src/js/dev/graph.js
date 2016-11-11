@@ -71,6 +71,18 @@ function graph(){
 		return ret;
 	}
     
+	function sub_graph(_nodes){
+		nodes = _nodes;
+		var node_map = d3.map(nodes, function(d){
+			return d.id;
+		});
+
+		edges = edges.filter(function(edge){
+			return node_map.has(edge.source.id) || node_map.has(edge.target.id);
+		});
+		return create();
+	}
+
     function remove_edge(edge){
     	var i;
     	for(i = 0; i < edge.source._edges.length; i++){
@@ -98,7 +110,7 @@ function graph(){
 
     	edge.source._all_out_neighbors = all_out_neighbors(edge.source);
     	edge.target._all_in_neighbors = all_in_neighbors(edge.target);
-    	
+
     	for(i = 0; i < edges.length; i++){
     		if(edge === edges[i]){
     			edges.splice(i, 1);
@@ -223,7 +235,9 @@ function graph(){
 		},
 		'create' : create,
 		'edge' : edge,
-		'undirected_edge' : undirected_edge
+		'undirected_edge' : undirected_edge,
+		'remove_edge' : remove_edge,
+		'sub_graph' : sub_graph
 	};
 
 	return ret;	
