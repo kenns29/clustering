@@ -5,6 +5,7 @@ function girvan_newman(){
 	function execute(){
 		var i, j;
 		var tree, tree_node;
+		var edge;
 		var ebc;
 		var clone_edges = graph.edges().slice(0);
 
@@ -15,37 +16,28 @@ function girvan_newman(){
 		};
 		tree = tree_node;
 
-
+		while(graph.edges().length > 0){
+			ebc = edge_betweenness_centrality().graph(graph);
 		
-		var stack = new Array();
+			ebc();
 
 
-		var communities = communitiy_detection(graph);
-		for(i = 0; i < communities.length; i++){
+			var max = -Infinity;
+			var max_edge_index = 0;
 
+
+			graph.edges().forEach(function(edge, i){
+				if(max < edge.edge_betweenness){
+					max_edge_index = i;
+					max = edge.edge_betweenness;
+				}
+			});
+			edge = graph.edges()[max_edge_index];
+			console.log('edge', edge.id);
+			graph.remove_edge(edge);
+
+			console.log('communities', communitiy_detection(graph));
 		}
-
-
-		ebc = edge_betweenness_centrality().graph(graph);
-		
-		ebc();
-
-
-		var max = -Infinity;
-		var max_edge_index = 0;
-		graph.edges().forEach(function(edge, i){
-			if(max < edge.edge_betweenness){
-				max_edge_index = i;
-				max = edge.edge_betweenness;
-			}
-		});
-
-		graph.remove_edge(graph.edges()[max_edge_index]);
-
-		
-
-		console.log('communities', communities);
-
 	}
 
 	function communitiy_detection(graph){
@@ -57,7 +49,7 @@ function girvan_newman(){
 
 		var source;
 		var communities = [];
-		if(!node_map.empty()){
+		while(!node_map.empty()){
 			source = node_map.values()[0];
 			communities.push(community(source));
 		}
@@ -73,6 +65,9 @@ function girvan_newman(){
 
 			var stack = new Array();
 			stack.push(source);
+			visited_nodes.add(source.id);
+			node_map.remove(source.id);
+			community_nodes.push(source);
 
 			while(stack.length > 0){
 				node = stack.pop();
@@ -83,6 +78,7 @@ function girvan_newman(){
 						visited_nodes.add(neighbor.id);
 						node_map.remove(neighbor.id);
 						community_nodes.push(neighbor);
+						stack.push(neighbor);
 					}
 				}
 			}			

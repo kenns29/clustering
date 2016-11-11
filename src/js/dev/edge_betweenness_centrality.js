@@ -51,9 +51,10 @@ function edge_betweenness_centrality(){
 				for(i = 0; i < node.in_flow.length; i++){
 					in_node = node.in_flow[i];
 					flow = node.flow * (in_node.weight / node.weight);
+
 					edge = graph.undirected_edge(node.value, in_node.value);
-					
 					edge.edge_betweenness = edge.edge_betweenness ? flow + edge.edge_betweenness : flow;
+					
 					stack.push(in_node);
 				}
 			}

@@ -92,6 +92,13 @@ function graph(){
     		}
     	}
 
+    	for(i = 0; i < edge.target._edges.length; i++){
+    		if(edge.id === edge.target._edges[i].id){
+    			edge.target._edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
     	for(i = 0; i < edge.source._out_edges.length; i++){
     		if(edge.id === edge.source._out_edges[i].id){
     			edge.source._out_edges.splice(i, 1);
