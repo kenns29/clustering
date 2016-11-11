@@ -32,7 +32,7 @@ function girvan_newman(){
 		}
 
 		tree_node = {
-			id : 0
+			id : 0,
 			com_id : 0,
 			name : '',
 			value : {
