@@ -133,31 +133,3 @@ function edge_betweenness_centrality(){
 
 dm.edge_betweenness_centrality = edge_betweenness_centrality;
 
-function print_ready_tree(tree){
-	var ptree = copy_node(tree);
-    recurse(tree, ptree);
-    return ptree;
-	function recurse(r, pr){
-		if(r){
-			r.children.forEach(function(child){
-				var copy_child = copy_node(child);
-				pr.children.push(copy_child);
-				recurse(child, copy_child);
-			});
-		}
-	}
-
-	function copy_node(r){
-		return {
-			'id' : r.value.id,
-			'in_flow' : r.in_flow.map(function(d){
-				return d.value.id;
-			}),
-			'out_flow' : r.out_flow.map(function(d){
-				return d.value.id;
-			}),
-			'weight' : r.weight,
-			'children' : []
-		};
-	}
-}

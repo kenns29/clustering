@@ -36,9 +36,12 @@ function graph(){
 
 		for(i = 0; i < nodes.length; i++){
 			node = nodes[i];
-			node.edges = [];
-			node.in_edges = [];
-			node.out_edges = [];
+			node._edges = [];
+			node._in_edges = [];
+			node._out_edges = [];
+			node.edges = function(){return this._edges;};
+			node.in_edges = function(){return this._in_edges;};
+			node.out_edges = function(){return this.out_edges;};
 		}
 
 		for(i = 0; i < edges.length; i++){
@@ -46,10 +49,10 @@ function graph(){
 			source = edge.source;
 			target = edge.target;
 
-			source.edges.push(edge);
-			target.edges.push(edge);
-			source.out_edges.push(edge);
-			target.in_edges.push(edge);
+			source._edges.push(edge);
+			target._edges.push(edge);
+			source._out_edges.push(edge);
+			target._in_edges.push(edge);
 		}
 
 		for(i = 0; i < nodes.length; i++){
@@ -68,6 +71,19 @@ function graph(){
 		return ret;
 	}
     
+    function remove_edge(edge){
+    	var i;
+    	for(i = 0; i < edge.source._edges.length; i++){
+    		if(edge.id === edge.source.edges[i].id){
+    			edge.source.edges.splice(i, 1);
+    			break;
+    		}
+    	}
+
+    	for(i = 0; i < )
+    	edge.source.edge
+    }
+
     function edge(n1, n2){
     	return edge_from_nodes(n1, n2);
     }
@@ -111,13 +127,13 @@ function graph(){
     }
 
     function all_in_neighbors(node){
-		return node.in_edges.map(function(d, i){
+		return node._in_edges.map(function(d, i){
 			return d.source;
 		});  	
     }
 
     function all_out_neighbors(node){
-    	return node.out_edges.map(function(d, i){
+    	return node._out_edges.map(function(d, i){
     		return d.target;
     	});
     }
@@ -126,8 +142,8 @@ function graph(){
     	var neighbors = [];
     	var edge;
     	var i;
-    	for(i = 0; i < node.edges.length; i++){
-    		edge = node.edges[i];
+    	for(i = 0; i < node._edges.length; i++){
+    		edge = node._edges[i];
     		neighbors.push(neighbor(node, edge));
     	}
     	return neighbors;

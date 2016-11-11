@@ -65,8 +65,8 @@ function shortest_path_dijkstra(){
 		while(Q.length && Q.length> 0){
 			cur_node = Q.dequeue();
 			
-			for(i = 0; i < cur_node.edges.length; i++){
-				edge = cur_node.edges[i];
+			for(i = 0; i < cur_node.edges().length; i++){
+				edge = cur_node.edges()[i];
 				neighbor = cur_node.neighbor(edge);
 				alt = edge.value + cur_node.dk_status.metric;
 				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
@@ -97,8 +97,8 @@ function shortest_path_dijkstra(){
 
 		while(Q.length && Q.length > 0){
 			cur_node = Q.dequeue();
-			for(i = 0; i < cur_node.in_edges.length; i++){
-				edge = cur_node.in_edges[i];
+			for(i = 0; i < cur_node.in_edges().length; i++){
+				edge = cur_node.in_edges()[i];
 				neighbor = cur_node.in_neighbor(edge);
 				alt = edge.value + cur_node.dk_status.metric;
 				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
@@ -129,8 +129,8 @@ function shortest_path_dijkstra(){
 
 		while(Q.length && Q.length > 0){
 			cur_node = Q.dequeue();
-			for(i = 0; i < cur_node.out_edges.length; i++){
-				edge = cur_node.out_edges[i];
+			for(i = 0; i < cur_node.out_edges().length; i++){
+				edge = cur_node.out_edges()[i];
 				neighbor = cur_node.out_neighbor(edge);
 				alt = edge.value + cur_node.dk_status.metric;
 				if(value_comparator(alt, neighbor.dk_status.metric) < 0){
