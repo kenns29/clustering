@@ -147,7 +147,7 @@ Example:
 		]);
 
 	//perform hierachical clustering	
-	var cluster = new HierachicalCluster()
+	var cluster = new dm.HierachicalCluster()
 	.data(points)
 	.dist_metric(dm.euclidean_distance)
 	.dist_fun('centroid')
@@ -161,20 +161,19 @@ Example:
 	//creating the clustering evaluation object
 	var cev = new dm.ClusterEvaluation().data(clustering);
 
-	cev = new ClusterEvaluation().data(clustering)
-	.silhouette_dist_metric(euclidean_distance);
-
 	var wss = cev.WSS();
 	var bss = cev.BSS();
 	var tss = cev.TSS();
-	var silhouette = cev.silhouette_coefficient();
+	var silhouette = cev
+	.silhouette_dist_metric(dm.euclidean_distance)
+	.silhouette_coefficient();
 ```
 ### Sparse Vector
 Example:
 ```js
-	var v1 = new SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
-	var v2 = new SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
-	var v3 = new SparseVector([1], [1]);
+	var v1 = new dm.SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
+	var v2 = new dm.SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
+	var v3 = new dm.SparseVector([1], [1]);
 	var d = v1.dotp(v2);
 	var s = v1.sum(v2);
 	console.log('d', d);
@@ -193,4 +192,114 @@ Example:
 	v1.setValue(4, 1);
 	v1.setValue(20, 1);
 	console.log('v1', v1.toDenseVector());
+```
+
+### Dijkstra's shortest path algorithm
+Example:
+```js
+	var nodes = [
+	{
+		id : 0,
+		name : 0
+	},
+	{
+		id: 1,
+		name : 1
+	},
+	{
+		id : 2,
+		name : 2
+	},
+	{
+		id : 3,
+		name : 3
+	},
+	{
+		id : 4,
+		name : 4
+	},
+	{
+		id : 5,
+		name : 5
+	},
+	{
+		id : 6,
+		name : 6
+	}
+	];
+
+	var edges = [
+	{
+		source : nodes[0],
+		target : nodes[1],
+		value : 2
+	},
+	{
+		source : nodes[0],
+		target : nodes[2],
+		value : 9
+	},
+	{
+		source : nodes[1],
+		target : nodes[2],
+		value : 4
+	},
+	{
+		source : nodes[1],
+		target : nodes[3],
+		value : 2
+	},
+	{
+		source : nodes[2],
+		target : nodes[3],
+		value : 1
+	},
+	{
+		source : nodes[2],
+		target : nodes[5],
+		value : 3
+	},
+	{
+		source : nodes[2],
+		target : nodes[6],
+		value : 11
+	},
+	{
+		source : nodes[3],
+		target : nodes[4],
+		value : 1
+	},
+	{
+		source : nodes[4],
+		target : nodes[6],
+		value : 7
+	},
+	{
+		source : nodes[5],
+		target : nodes[6],
+		value : 7
+	}
+	];
+
+	var G = dm.graph().nodes(nodes).edges(edges).create();
+	
+	var dk = dm.shortest_path_dijkstra()
+	.direction('out')
+	.init_metric(function(){return 0;})
+	.init_source_metric(function(){return Infinity;})
+	.comparator(function(a, b){
+		return b - a;
+	})
+	// .source(G.nodes()[0])
+	.graph(G);
+	// dk();
+	var paths = dk();
+	var path;
+	var i;
+	for(i = 0; i < paths.length; i++){
+		path = paths[i];
+		console.log(i, path.map(function(d){
+			return d.id;
+		}));
+	}
 ```
