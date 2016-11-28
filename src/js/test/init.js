@@ -704,7 +704,9 @@ function breadth_first_search_test(){
 					return d.id;
 				})
 			},
-			children : []
+			children : [],
+			m : r.m,
+			metric : r.metric
 		};
 	}
 }
