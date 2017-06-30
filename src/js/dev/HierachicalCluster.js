@@ -25,7 +25,7 @@ function HierachicalCluster(){
 	var accessor = function(d){
 		return d.value.point;
 	};
-	
+
 	/*
 	* Stores the history of pairs
 	*/
@@ -51,9 +51,12 @@ function HierachicalCluster(){
 		var B = R.children[1];
 		return lance_williams(R, Q, A, B, 1/2, 1/2, 0, 1/2);
 	};
-	
+	//option for cutting the tree
 	var cut_opt = 'distance';
-
+	//option for normalizing the distance
+	var normalize_distance = false;
+	var normalize_domain = null;
+	var normalize_range = null;
 	/*
 	* root has the following format:
 	* {id: 0, name, value:{point:[]}, children:[], m:10, metric:1.1}
@@ -62,15 +65,15 @@ function HierachicalCluster(){
 	var root;
 	var nodes;
 	var topNodes;
-	
+
 	//id for new node
 	var nID = 0;
-	
+
 	var name_fun = function(n){
 		var num = n.id + 1;
 		return num.toString();
 	};
-	
+
 	this.init = function(){
 		var i, j;
 		var node;
@@ -81,30 +84,16 @@ function HierachicalCluster(){
 			/*
 			* Init leaf nodes
 			*/
-			// nodes = data.map(function(d, i){
-			// 	return {
-			// 		'id' : i,
-			// 		'name' : d.name,
-			// 		'value':{
-			// 			'point' : accessor(d)
-			// 		},
-			// 		'm' : 1,
-			// 		'metric' : 0
-			// 	};
-			// });
-
-			nodes = [];
-			for(i = 0; i < data.length; i++){
-				node = data[i];
+			nodes = data.map(function(d,i){
+				var node = d;
 				node.id = i;
 				node.value.point = accessor(node),
 				node.m = 1;
 				node.metric = 0;
-				nodes.push(node);
-			}
-
+				return node;
+			});
 			topNodes = nodes.slice(0);
-			
+
 			nID = nodes.length;
 			/*
 			* Init pairs
@@ -122,14 +111,17 @@ function HierachicalCluster(){
 					});
 				}
 			}
+			if(normalize_distance){
+				normalizePairs(pairs, normalize_domain ,normalize_range);
+			}
 			//copy the pairs to leafPairs
 			leafPairs = pairs.slice(0);
-			//copy pairs to the top pairs and sort the top pairs 
+			//copy pairs to the top pairs and sort the top pairs
 			topPairs = pairs.slice(0);
 			topPairs.forEach(function(d, i){
 				d.index = i;
 			});
-			
+
 			topPairs.sort(function(a, b){
 				if(a.dist < b.dist){
 					return -1;
@@ -153,7 +145,7 @@ function HierachicalCluster(){
 		}
 		return this;
 	};
-	
+
 	this.cluster = function(){
 		while(topNodes.length > 1){
 			if(save_history)
@@ -164,7 +156,7 @@ function HierachicalCluster(){
 		root = topNodes[0];
 		return this;
 	};
-	
+
 
 	this.cut = function(threshold){
 		var nodes;
@@ -183,7 +175,7 @@ function HierachicalCluster(){
 			var leafNodes = getLeafNodes(n);
 			var points = leafNodes.map(function(p){
 				return {
-					name : p.name, 
+					name : p.name,
 					value : {
 						point : p.value.point,
 						dist : p.metric
@@ -263,7 +255,7 @@ function HierachicalCluster(){
 					'to_id' : d.to.id
 				};
 			}
-			
+
 		});
 		return matrix;
 	};
@@ -273,7 +265,7 @@ function HierachicalCluster(){
 	this.data = function(_){
 		return (arguments.length > 0) ? (data = _, this) : data;
 	};
-	
+
 	this.accessor = function(_){
 		return (arguments.length > 0) ? (accessor = _, this) : accessor;
 	};
@@ -321,7 +313,7 @@ function HierachicalCluster(){
 					dist_fun = function(R, Q){
 						var A = R.children[0];
 						var B = R.children[1];
-						var alpha_A = (A.m + Q.m) / (A.m + B.m + Q.m); 
+						var alpha_A = (A.m + Q.m) / (A.m + B.m + Q.m);
 						var alpha_B = (B.m + Q.m) / (A.m + B.m + Q.m);
 						var beta = -Q.m / (A.m + B.m + Q.m);
 						return lance_williams(R, Q, A, B, alpha_A, alpha_B, beta, 0);
@@ -334,11 +326,11 @@ function HierachicalCluster(){
 			return this;
 		}
 	};
-	
+
 	this.dist_metric = function(_){
 		return (arguments.length > 0) ? (dist_metric = _, this) : dist_metric;
 	};
-	
+
 	this.save_history = function(_){
 		return (arguments.length > 0) ? (save_history = _, this) : save_history;
 	};
@@ -350,15 +342,15 @@ function HierachicalCluster(){
 	this.leafPairs = function(){
 		return leafPairs;
 	};
-	
+
 	this.topPairs = function(){
 		return topPairs;
 	};
-	
+
 	this.pairs = function(){
 		return pairs;
 	};
-	
+
 	this.history = function(){
 		return history_pairs;
 	};
@@ -369,6 +361,15 @@ function HierachicalCluster(){
 	this.data_type = function(_){
 		return (arguments.length > 0) ? (data_type = _, this) : data_type;
 	};
+	this.normalize_distance = function(_){
+		return (arguments.length > 0) ? (normalize_distance = _, this) : normalize_distance;
+	};
+	this.normalize_domain = function(_){
+		return (arguments.length > 0) ? (normalize_domain = _, this) : normalize_domain;
+	};
+	this.normalize_range = function(_){
+		return (arguments.length > 0) ? (normalize_range = _, this) : normalize_range;
+	};
 	/*
 	* Using Lance Williams formula to compare clusters between node R and Q,
 	* R is formed by mergin cluster A and B
@@ -377,9 +378,9 @@ function HierachicalCluster(){
 		var pairAQ = topPairMap.get(pairID(A, Q));
 		var pairBQ = topPairMap.get(pairID(B, Q));
 		var pairAB = topPairMap.get(pairID(A, B));
-		return alpha_A * pairAQ.dist + alpha_B * pairBQ.dist + beta * pairAB.dist + gamma * Math.abs(pairAQ.dist - pairBQ.dist); 
+		return alpha_A * pairAQ.dist + alpha_B * pairBQ.dist + beta * pairAB.dist + gamma * Math.abs(pairAQ.dist - pairBQ.dist);
 	}
-	
+
 	function join(n1, n2){
 		//new node
 		var n = {
@@ -396,13 +397,13 @@ function HierachicalCluster(){
 				topNodes.splice(i, 1);
 			}
 		}
-		
+
 		//compute the new pairs for n and add the pairs to topPairs
 		topNodes.forEach(function(d, i){
 			var dist = dist_fun(n, d);
 			topPairs.push(makePair(n, d, dist));
 		});
-		
+
 		//remove the pairs related to n1 and n2
 		i = topPairs.length;
 		while(i--){
@@ -429,7 +430,7 @@ function HierachicalCluster(){
 		topNodes.push(n);
 		++nID;
 	}
-	
+
 	/*
 	* get the pair id from a pair of nodes
 	*/
@@ -462,7 +463,7 @@ function HierachicalCluster(){
 			}
 		}
 	}
-	
+
 	function cutByDist(threshold){
 		var nodes = [];
 		recurse(root, nodes);
@@ -511,9 +512,44 @@ function HierachicalCluster(){
 			}
 		}
 	}
-	function pairIndexOf(pair){
-		
+	function distanceExtent(pairs){
+		var max = -Infinity, min = Infinity;
+		pairs.forEach(function(pair){
+			max = Math.max(max, pair.dist);
+			min = Math.min(min, pair.dist);
+		});
+		return [min, max];
 	}
+	function normalizeDist(dist, domain, range){
+		return range[0]
+		+ (range[1] - range[0])/(domain[1] - domain[0])
+		* (dist - domain[0]);
+	}
+	function normalizePairs(pairs, _domain, _range){
+		let domain, range = [0,1], extent;
+		if(_domain){
+			if(_domain[0] != null && _domain[1] != null){
+				domain = _domain;
+			}
+			else if(_domain[0] != null){
+				extent = distanceExtent(pairs);
+				domain = [_domain[0], extent[1]];
+			}
+			else if(_domain[1] != null){
+				extent = distanceExtent(pairs);
+				domain = [extent[0], _domain[1]];
+			}
+		} else {
+			domain = distanceExtent(pairs);
+		}
+		if(_range) range = _range;
+		pairs.forEach(function(pair){
+			pair.orig_dist = pair.dist;
+			pair.dist = normalizeDist(pair.dist, domain, range);
+		});
+		return pairs;
+	}
+	function pairIndexOf(pair){}
 }
 
 HierachicalCluster.DATA_TYPE = {
