@@ -1,13 +1,13 @@
 $(document).ready(function(){
 	// draw_hierachical_with_binary_data();
-	// draw_hierachical_with_continous_data();
+	draw_hierachical_with_continous_data();
 	// draw_hierachical_with_two_points();
 	// draw_kmean_with_euclidean();
 	// matrix_template();
 	// evaluation_template();
 	// sparseVectorTest();
 	// dijkstra_test();
-	breadth_first_search_test();
+	// breadth_first_search_test();
 });
 /*
 * Euclidean distance example
@@ -33,7 +33,7 @@ function draw_hierachical_with_continous_data(){
 	// 	}
 	// },
 	// {
-	// 	name : '4', 
+	// 	name : '4',
 	// 	value : {
 	// 		point : [0.26, 0.19]
 	// 	}
@@ -69,7 +69,7 @@ function draw_hierachical_with_continous_data(){
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [0, 3]
 		}
@@ -92,14 +92,17 @@ function draw_hierachical_with_continous_data(){
 			point : [0, 11]
 		}
 	}])
-	.dist_metric(tanimoto_distance)
+	.normalize_distance(true)
+	.normalize_domain([0, null])
+	.normalize_range([0,1])
+	.dist_metric(euclidean_distance)
 	.dist_fun('max')
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
@@ -135,7 +138,7 @@ function draw_hierachical_with_binary_data(){
 		}
 	},
 	// {
-	// 	name : '4', 
+	// 	name : '4',
 	// 	value : {
 	// 		point : [0, 1, 0, 1, 0, 0]
 	// 	}
@@ -163,9 +166,9 @@ function draw_hierachical_with_binary_data(){
 	.dist_fun('max')
 	.init()
 	.cluster();
-	
+
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
@@ -194,7 +197,7 @@ function draw_kmean_with_euclidean(){
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [5, 7]
 		}
@@ -215,7 +218,7 @@ function draw_kmean_with_euclidean(){
 		name : '7',
 		value : {
 			point : [3.5, 4.5]
-		} 
+		}
 	}
 	])
 	.clusters([
@@ -245,7 +248,7 @@ function draw_kmean_with_euclidean(){
 	var wss = new ClusterEvaluation().data(clusters).WSS();
 	var bss = new ClusterEvaluation().data(clusters).BSS();
 	var history = cluster.history();
-	
+
 	kmean_output_display(cluster);
 }
 
@@ -270,7 +273,7 @@ function evaluation_template(){
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	var clustering = cluster.cut_opt('K').cut(3);
 
 	var cev = new ClusterEvaluation().data(clustering);
@@ -290,8 +293,8 @@ function evaluation_template(){
 	output(cev.TSS());
 	output('silhouette');
 	output(pretty_print(cev.silhouette_coefficient()));
-	
-	
+
+
 	/*
 	* Clustering
 	*/
@@ -367,7 +370,7 @@ function evaluation_template(){
 			]
 		]);
 
-	
+
 	cev = new ClusterEvaluation().data(clustering)
 	.silhouette_dist_metric(euclidean_distance);
 
@@ -403,9 +406,9 @@ function draw_hierachical_with_two_points(){
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
@@ -432,7 +435,7 @@ function matrix_template(){
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [0.26, 0.19]
 		}
@@ -454,9 +457,9 @@ function matrix_template(){
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	// new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	// new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();

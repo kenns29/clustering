@@ -521,6 +521,7 @@ function HierachicalCluster(){
 		return [min, max];
 	}
 	function normalizeDist(dist, domain, range){
+		if(domain[0] === domain[1]) return dist;
 		return range[0]
 		+ (range[1] - range[0])/(domain[1] - domain[0])
 		* (dist - domain[0]);

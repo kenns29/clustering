@@ -34,11 +34,11 @@ module.exports = function(grunt) {
         }
       },
       dev : {
-        files: { 'dist/js/dmjs.min.js': 'src/js/dev/*.js' } 
+        files: { 'dist/js/dmjs.min.js': 'src/js/dev/*.js' }
       },
-      production: { 
-        files: { 'dist/js/dmjs.min.js': 'src/js/dev/*.js'} 
-      } 
+      production: {
+        files: { 'dist/js/dmjs.min.js': 'src/js/dev/*.js'}
+      }
     },
     // // configure cssmin to minify css files ------------------------------------
     // cssmin: {
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
             'src/js/dev/breadth_first.js',
             'src/js/dev/shortest_path_dijkstra.js',
             'src/js/dev/graph.js',
-            'src/js/dev/ClusterEvaluation.js', 
+            'src/js/dev/ClusterEvaluation.js',
             'src/js/dev/data_utils.js',
             'src/js/dev/distance_metrics.js',
             'src/js/dev/Evaluation.js',
@@ -89,11 +89,11 @@ module.exports = function(grunt) {
         }
       }
     }
-    
+
   });
 
   // ============= // CREATE TASKS ========== //
-  grunt.registerTask('default', ['concat', 'umd']); 
+  grunt.registerTask('default', ['concat', 'umd']);
 
   // ===========================================================================
   // LOAD GRUNT PLUGINS ========================================================
