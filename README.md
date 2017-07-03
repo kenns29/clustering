@@ -3,6 +3,11 @@ A set of data mining tool for javascript
 
 
 ## Installation
+##### npm
+```
+npm install dmjs
+```
+##### bower
 ```
 bower install dmjs
 ```
@@ -13,7 +18,7 @@ bower install dmjs
 #### Hierachical Cluster
 Example:
 
-```js
+```javascript
 	var hc_cluster = new dm.HierachicalCluster()
 	.data([{
 		name : '1',
@@ -62,10 +67,12 @@ Example:
 	.save_history(true)
 	.init()
 	.cluster();
+
+	console.log('root', hc_cluster.root());
 ```
 #### Kmeans Cluster
 Example:
-```js
+```javascript
 	var km_cluster = new dm.KMean()
 	.data([{
 		name : '1',
@@ -135,7 +142,7 @@ Example:
 ```
 #### Clustering Evaluation
 Example:
-```js
+```javascript
 	//create some points
 	var points = dm.array2points([
 			[0.4, 0.53],
@@ -170,7 +177,7 @@ Example:
 ```
 ### Sparse Vector
 Example:
-```js
+```javascript
 	var v1 = new dm.SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
 	var v2 = new dm.SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
 	var v3 = new dm.SparseVector([1], [1]);
@@ -196,7 +203,7 @@ Example:
 
 ### Dijkstra's shortest path algorithm
 Example:
-```js
+```javascript
 	var nodes = [
 	{
 		id : 0,
@@ -292,7 +299,7 @@ Example:
 	})
 	// .source(G.nodes()[0])
 	.graph(G);
-	// dk();
+
 	var paths = dk();
 	var path;
 	var i;
@@ -305,16 +312,8 @@ Example:
 ```
 
 ### Girvan Newman Network Clustering Althorithm
-```js
+```javascript
 	var G = dm.Graph().nodes(nodes).edges(edges).create();
-	// console.log('G', G.nodes(), G.edges());
-	// var ebc = edge_betweenness_centrality().graph(G);
-
-	// ebc();
-	// console.log('edge', G.edges());
-	// var ptree = print_ready_tree(tree);
-
-	// console.log('ptree', JSON.stringify(ptree, null, 2));
 	var ge = dm.GirvanNewman().graph(G);
 	var tree = ge();
 	console.log('tree', tree);

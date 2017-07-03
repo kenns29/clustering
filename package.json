@@ -5,10 +5,12 @@
     "name" : "Hong Wang",
     "email" : "kennsmacintosh@gmail.com"
   },
-  "version": "0.1.0",
+  "version": "0.0.1",
   "scripts": {
     "webpack": "webpack"
   },
+  "repository":"https://github.com/kenns29/dmjs.git",
+  "license":"MIT",
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-core": "^6.25.0",
