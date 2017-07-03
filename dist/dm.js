@@ -670,9 +670,12 @@ function HierachicalCluster() {
 		var B = R.children[1];
 		return lance_williams(R, Q, A, B, 1 / 2, 1 / 2, 0, 1 / 2);
 	};
-
+	//option for cutting the tree
 	var cut_opt = 'distance';
-
+	//option for normalizing the distance
+	var normalize_distance = false;
+	var normalize_domain = null;
+	var normalize_range = null;
 	/*
  * root has the following format:
  * {id: 0, name, value:{point:[]}, children:[], m:10, metric:1.1}
@@ -700,27 +703,13 @@ function HierachicalCluster() {
 			/*
    * Init leaf nodes
    */
-			// nodes = data.map(function(d, i){
-			// 	return {
-			// 		'id' : i,
-			// 		'name' : d.name,
-			// 		'value':{
-			// 			'point' : accessor(d)
-			// 		},
-			// 		'm' : 1,
-			// 		'metric' : 0
-			// 	};
-			// });
-
-			nodes = [];
-			for (i = 0; i < data.length; i++) {
-				node = data[i];
+			nodes = data.map(function (d, i) {
+				var node = d;
 				node.id = i;
 				node.value.point = accessor(node), node.m = 1;
 				node.metric = 0;
-				nodes.push(node);
-			}
-
+				return node;
+			});
 			topNodes = nodes.slice(0);
 
 			nID = nodes.length;
@@ -740,6 +729,9 @@ function HierachicalCluster() {
 					});
 				}
 			}
+			if (normalize_distance) {
+				normalizePairs(pairs, normalize_domain, normalize_range);
+			}
 			//copy the pairs to leafPairs
 			leafPairs = pairs.slice(0);
 			//copy pairs to the top pairs and sort the top pairs
@@ -757,7 +749,7 @@ function HierachicalCluster() {
 					return a.index - b.index;
 				}
 			});
-			topPairMap = (0, _utils.array2map)(topPairs, function (d) {
+			topPairMap = d3.map(topPairs, function (d) {
 				return d.id;
 			});
 		}
@@ -821,7 +813,7 @@ function HierachicalCluster() {
 
 		var matrix = [];
 		var maxIndex = 0;
-		var name2index = new Map();
+		var name2index = d3.map();
 		var to_ps = [];
 
 		ps.forEach(function (d) {
@@ -976,6 +968,15 @@ function HierachicalCluster() {
 	this.data_type = function (_) {
 		return arguments.length > 0 ? (data_type = _, this) : data_type;
 	};
+	this.normalize_distance = function (_) {
+		return arguments.length > 0 ? (normalize_distance = _, this) : normalize_distance;
+	};
+	this.normalize_domain = function (_) {
+		return arguments.length > 0 ? (normalize_domain = _, this) : normalize_domain;
+	};
+	this.normalize_range = function (_) {
+		return arguments.length > 0 ? (normalize_range = _, this) : normalize_range;
+	};
 	/*
  * Using Lance Williams formula to compare clusters between node R and Q,
  * R is formed by mergin cluster A and B
@@ -1031,7 +1032,7 @@ function HierachicalCluster() {
 				return a.index - b.index;
 			}
 		});
-		topPairMap = (0, _utils.array2map)(topPairs, function (d) {
+		topPairMap = d3.map(topPairs, function (d) {
 			return d.id;
 		});
 		topNodes.push(n);
@@ -1116,8 +1117,45 @@ function HierachicalCluster() {
 			}
 		}
 	}
+	function distanceExtent(pairs) {
+		var max = -Infinity,
+		    min = Infinity;
+		pairs.forEach(function (pair) {
+			max = Math.max(max, pair.dist);
+			min = Math.min(min, pair.dist);
+		});
+		return [min, max];
+	}
+	function normalizeDist(dist, domain, range) {
+		if (domain[0] === domain[1]) return dist;
+		return range[0] + (range[1] - range[0]) / (domain[1] - domain[0]) * (dist - domain[0]);
+	}
+	function normalizePairs(pairs, _domain, _range) {
+		var domain = void 0,
+		    range = [0, 1],
+		    extent = void 0;
+		if (_domain) {
+			if (_domain[0] != null && _domain[1] != null) {
+				domain = _domain;
+			} else if (_domain[0] != null) {
+				extent = distanceExtent(pairs);
+				domain = [_domain[0], extent[1]];
+			} else if (_domain[1] != null) {
+				extent = distanceExtent(pairs);
+				domain = [extent[0], _domain[1]];
+			}
+		} else {
+			domain = distanceExtent(pairs);
+		}
+		if (_range) range = _range;
+		pairs.forEach(function (pair) {
+			pair.orig_dist = pair.dist;
+			pair.dist = normalizeDist(pair.dist, domain, range);
+		});
+		return pairs;
+	}
 	function pairIndexOf(pair) {}
-}
+};
 
 HierachicalCluster.DATA_TYPE = {
 	NODE: 'node',

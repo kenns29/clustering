@@ -92,7 +92,10 @@ function draw_hierachical_with_continous_data(){
 			point : [0, 11]
 		}
 	}])
-	.dist_metric(dm.tanimoto_distance)
+	.normalize_distance(true)
+	.normalize_domain([0, null])
+	.normalize_range([0,1])
+	.dist_metric(dm.euclidean_distance)
 	.dist_fun('max')
 	.save_history(true)
 	.init()
