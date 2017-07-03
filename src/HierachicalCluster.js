@@ -137,7 +137,7 @@ export function HierachicalCluster(){
 					return a.index - b.index;
 				}
 			});
-			topPairMap = d3.map(topPairs, function(d){
+			topPairMap = array2map(topPairs, function(d){
 				return d.id;
 			});
 		}
@@ -206,7 +206,7 @@ export function HierachicalCluster(){
 
 		var matrix = [];
 		var maxIndex = 0;
-		var name2index = d3.map();
+		var name2index = new Map();
 		var to_ps = [];
 
 		ps.forEach(function(d){
@@ -431,7 +431,7 @@ export function HierachicalCluster(){
 				return a.index - b.index;
 			}
 		});
-		topPairMap = d3.map(topPairs, function(d){return d.id;});
+		topPairMap = array2map(topPairs, function(d){return d.id;});
 		topNodes.push(n);
 		++nID;
 	}
