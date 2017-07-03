@@ -1,5 +1,10 @@
 {
   "name": "dmjs",
+  "main" : "src/main.js",
+  "author": {
+    "name" : "Hong Wang",
+    "email" : "kennsmacintosh@gmail.com"
+  },
   "version": "0.1.0",
   "scripts": {
     "webpack": "webpack"
@@ -17,13 +22,13 @@
     "grunt-contrib-less": "latest",
     "grunt-contrib-uglify": "latest",
     "grunt-contrib-watch": "latest",
-    "grunt-umd": "^2.3.5",
+    "grunt-umd": "^2.4.0",
     "jshint-stylish": "latest",
     "path": "^0.12.7",
     "tape": "^4.5.1",
     "webpack": "^3.0.0"
   },
   "dependencies": {
-    "grunt-umd": "^2.3.5"
+    "js-priority-queue": "^0.1.5"
   }
 }

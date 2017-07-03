@@ -1,19 +1,19 @@
 $(document).ready(function(){
 	// draw_hierachical_with_binary_data();
-	// draw_hierachical_with_continous_data();
+	draw_hierachical_with_continous_data();
 	// draw_hierachical_with_two_points();
-	// draw_kmean_with_euclidean();
+	draw_kmean_with_euclidean();
 	// matrix_template();
-	// evaluation_template();
-	// sparseVectorTest();
-	// dijkstra_test();
+	evaluation_template();
+	sparseVectorTest();
+	dijkstra_test();
 	breadth_first_search_test();
 });
 /*
 * Euclidean distance example
 */
 function draw_hierachical_with_continous_data(){
-	var cluster = new HierachicalCluster()
+	var cluster = dm.HierachicalCluster()
 	// .data([{
 	// 	name : '1',
 	// 	value : {
@@ -33,7 +33,7 @@ function draw_hierachical_with_continous_data(){
 	// 	}
 	// },
 	// {
-	// 	name : '4', 
+	// 	name : '4',
 	// 	value : {
 	// 		point : [0.26, 0.19]
 	// 	}
@@ -69,7 +69,7 @@ function draw_hierachical_with_continous_data(){
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [0, 3]
 		}
@@ -92,14 +92,14 @@ function draw_hierachical_with_continous_data(){
 			point : [0, 11]
 		}
 	}])
-	.dist_metric(tanimoto_distance)
+	.dist_metric(dm.tanimoto_distance)
 	.dist_fun('max')
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
@@ -107,7 +107,7 @@ function draw_hierachical_with_continous_data(){
 	var clustering = cluster.cut_opt('K').cut(3);
 	// output(pretty_print(clustering));
 
-	var silhouette = new ClusterEvaluation().data(clustering).silhouette_coefficient();
+	var silhouette = dm.ClusterEvaluation().data(clustering).silhouette_coefficient();
 	// output(pretty_print(silhouette));
 }
 
@@ -115,7 +115,7 @@ function draw_hierachical_with_continous_data(){
 * Jaccard distance example
 */
 function draw_hierachical_with_binary_data(){
-		var cluster = new HierachicalCluster()
+		var cluster = dm.HierachicalCluster()
 	.data([{
 		name : '1',
 		value : {
@@ -135,7 +135,7 @@ function draw_hierachical_with_binary_data(){
 		}
 	},
 	// {
-	// 	name : '4', 
+	// 	name : '4',
 	// 	value : {
 	// 		point : [0, 1, 0, 1, 0, 0]
 	// 	}
@@ -159,13 +159,13 @@ function draw_hierachical_with_binary_data(){
 		}
 	}])
 	.save_history(true)
-	.dist_metric(jaccard_distance)
+	.dist_metric(dm.jaccard_distance)
 	.dist_fun('max')
 	.init()
 	.cluster();
-	
+
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
@@ -174,7 +174,7 @@ function draw_hierachical_with_binary_data(){
 }
 
 function draw_kmean_with_euclidean(){
-	var cluster = new KMean()
+	var cluster = dm.KMean()
 	.data([{
 		name : '1',
 		value : {
@@ -194,7 +194,7 @@ function draw_kmean_with_euclidean(){
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [5, 7]
 		}
@@ -215,7 +215,7 @@ function draw_kmean_with_euclidean(){
 		name : '7',
 		value : {
 			point : [3.5, 4.5]
-		} 
+		}
 	}
 	])
 	.clusters([
@@ -238,20 +238,20 @@ function draw_kmean_with_euclidean(){
 	.accessor(function(d){return d.value.point;})
 	.centroid_fun('mean')
 	.numIteration(4)
-	.dist_metric(euclidean_distance)
+	.dist_metric(dm.euclidean_distance)
 	.cluster();
 
 	var clusters = cluster.clusters();
-	var wss = new ClusterEvaluation().data(clusters).WSS();
-	var bss = new ClusterEvaluation().data(clusters).BSS();
+	var wss = dm.ClusterEvaluation().data(clusters).WSS();
+	var bss = dm.ClusterEvaluation().data(clusters).BSS();
 	var history = cluster.history();
-	
+
 	kmean_output_display(cluster);
 }
 
 function evaluation_template(){
 	output("############# Hierachical #######################")
-	var points = array2points([
+	var points = dm.array2points([
 			[0.4, 0.53],
 			[0.22, 0.38],
 			[0.35, 0.32],
@@ -263,24 +263,24 @@ function evaluation_template(){
 
 	output('Hierachical cluster points')
 	output(pretty_print(points));
-	var cluster = new HierachicalCluster()
+	var cluster = dm.HierachicalCluster()
 	.data(points)
-	.dist_metric(euclidean_distance)
+	.dist_metric(dm.euclidean_distance)
 	.dist_fun('centroid')
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	var clustering = cluster.cut_opt('K').cut(3);
 
-	var cev = new ClusterEvaluation().data(clustering);
+	var cev = dm.ClusterEvaluation().data(clustering);
 
 	output('Hierachical cluster')
 	output(pretty_print(clustering));
 
 
-	cev = new ClusterEvaluation().data(clustering)
-	.silhouette_dist_metric(euclidean_distance);
+	cev = dm.ClusterEvaluation().data(clustering)
+	.silhouette_dist_metric(dm.euclidean_distance);
 
 	output('wss')
 	output(cev.WSS());
@@ -290,13 +290,13 @@ function evaluation_template(){
 	output(cev.TSS());
 	output('silhouette');
 	output(pretty_print(cev.silhouette_coefficient()));
-	
-	
+
+
 	/*
 	* Clustering
 	*/
 	output("############# KMEAN #######################")
-	points = array2points([
+	points = dm.array2points([
 			[1, 1],
 			[1.5, 2],
 			[3, 4],
@@ -305,7 +305,7 @@ function evaluation_template(){
 			[4.5, 5],
 			[3.5, 4.5]
 		]);
-	var kmean_cluster = new KMean()
+	var kmean_cluster = dm.KMean()
 	.data(points)
 	.clusters([
 		{
@@ -326,7 +326,7 @@ function evaluation_template(){
 	.stopThreshold(0)
 	.accessor(function(d){return d.value.point;})
 	.centroid_fun('mean')
-	.dist_metric(euclidean_distance)
+	.dist_metric(dm.euclidean_distance)
 	.cluster();
 
 	clustering = kmean_cluster.clusters();
@@ -336,8 +336,8 @@ function evaluation_template(){
 	output(pretty_print(clustering));
 
 
-	cev = new ClusterEvaluation().data(clustering)
-	.silhouette_dist_metric(euclidean_distance);
+	cev = dm.ClusterEvaluation().data(clustering)
+	.silhouette_dist_metric(dm.euclidean_distance);
 
 	output('wss')
 	output(cev.WSS());
@@ -351,7 +351,7 @@ function evaluation_template(){
 	* Evaluate with arbitary cluster
 	*/
 	output("############# arbitary #######################")
-	clustering = array2clustering([
+	clustering = dm.array2clustering([
 			[
 				[1, 1],
 				[1.5, 2],
@@ -367,9 +367,9 @@ function evaluation_template(){
 			]
 		]);
 
-	
-	cev = new ClusterEvaluation().data(clustering)
-	.silhouette_dist_metric(euclidean_distance);
+
+	cev = dm.ClusterEvaluation().data(clustering)
+	.silhouette_dist_metric(dm.euclidean_distance);
 
 	output(pretty_print(clustering));
 	output('wss')
@@ -385,7 +385,7 @@ function evaluation_template(){
 }
 
 function draw_hierachical_with_two_points(){
-	var cluster = new HierachicalCluster()
+	var cluster = dm.HierachicalCluster()
 	.data([{
 		name : '1',
 		value : {
@@ -403,16 +403,16 @@ function draw_hierachical_with_two_points(){
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
 }
 
 function matrix_template(){
-	var cluster = new HierachicalCluster()
+	var cluster = dm.HierachicalCluster()
 	.data([{
 		name : '1',
 		value : {
@@ -432,7 +432,7 @@ function matrix_template(){
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [0.26, 0.19]
 		}
@@ -449,23 +449,23 @@ function matrix_template(){
 			point : [0.45, 0.30]
 		}
 	}])
-	.dist_metric(tanimoto_distance)
+	.dist_metric(dm.tanimoto_distance)
 	.dist_fun('centroid')
 	.save_history(true)
 	.init()
 	.cluster();
-	
+
 	// new DrawTree().container('tree-container').data(cluster.root()).draw();
-	
+
 	var matrix = cluster.pair2matrix(cluster.leafPairs());
 	new DrawMatrix().data(matrix).container('matrix-container').draw();
 	// new DrawMatrixHistory().container('matrix-history-container').cluster(cluster).draw();
 }
 
 function sparseVectorTest(){
-	var v1 = new SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
-	var v2 = new SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
-	var v3 = new SparseVector([1], [1]);
+	var v1 = dm.SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
+	var v2 = dm.SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
+	var v3 = dm.SparseVector([1], [1]);
 	var d = v1.dotp(v2);
 	var s = v1.sum(v2);
 	console.log('d', d);
@@ -571,10 +571,10 @@ function dijkstra_test(){
 	}
 	];
 
-	var G = graph().nodes(nodes).edges(edges).create();
+	var G = dm.Graph().nodes(nodes).edges(edges).create();
 	console.log('G', G.nodes(), G.edges());
 
-	var dk = shortest_path_dijkstra()
+	var dk = dm.ShortestPathDijkstra()
 	.direction('out')
 	.init_metric(function(){return 0;})
 	.init_source_metric(function(){return Infinity;})
@@ -680,16 +680,8 @@ function breadth_first_search_test(){
 	}
 	];
 
-	var G = graph().nodes(nodes).edges(edges).create();
-	// console.log('G', G.nodes(), G.edges());
-	// var ebc = edge_betweenness_centrality().graph(G);
-
-	// ebc();
-	// console.log('edge', G.edges());
-	// var ptree = print_ready_tree(tree);
-
-	// console.log('ptree', JSON.stringify(ptree, null, 2));
-	var ge = girvan_newman().graph(G);
+	var G = dm.Graph().nodes(nodes).edges(edges).create();
+	var ge = dm.GirvanNewman().graph(G);
 	var tree = ge();
 	console.log('tree', tree);
 

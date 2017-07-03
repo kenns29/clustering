@@ -1,7 +1,7 @@
 var path = require('path');
 module.exports = exports = {
   entry: [
-      './webpack/main.js'
+      './src/main.js'
   ],
   devtool: 'source-map',
   output: {

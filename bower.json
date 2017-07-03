@@ -1,7 +1,7 @@
 {
   "name": "dmjs",
   "version": "0.0.1",
-  "main": "dist/dmjs.js",
+  "main": "dist/dm.js",
   "ignore": [
     "dist/concat",
     "node_modules",
@@ -19,8 +19,6 @@
     "README.md"
   ],
   "dependencies": {
-    "jquery": null,
-    "d3": "^3.5.17",
     "js-priority-queue": "^0.1.5"
   }
 }

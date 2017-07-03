@@ -34,7 +34,7 @@ Example:
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [0, 3]
 		}
@@ -86,7 +86,7 @@ Example:
 		}
 	},
 	{
-		name : '4', 
+		name : '4',
 		value : {
 			point : [5, 7]
 		}
@@ -107,7 +107,7 @@ Example:
 		name : '7',
 		value : {
 			point : [3.5, 4.5]
-		} 
+		}
 	}
 	])
 	.clusters([
@@ -146,7 +146,7 @@ Example:
 			[0.45, 0.30]
 		]);
 
-	//perform hierachical clustering	
+	//perform hierachical clustering
 	var cluster = new dm.HierachicalCluster()
 	.data(points)
 	.dist_metric(dm.euclidean_distance)
@@ -154,8 +154,8 @@ Example:
 	.save_history(true)
 	.init()
 	.cluster();
-	
-	//Cut the hierachical clustering to 3 clusters	
+
+	//Cut the hierachical clustering to 3 clusters
 	var clustering = cluster.cut_opt('K').cut(3);
 
 	//creating the clustering evaluation object
@@ -281,9 +281,9 @@ Example:
 	}
 	];
 
-	var G = dm.graph().nodes(nodes).edges(edges).create();
-	
-	var dk = dm.shortest_path_dijkstra()
+	var G = dm.Graph().nodes(nodes).edges(edges).create();
+
+	var dk = dm.ShortestPathDijkstra()
 	.direction('out')
 	.init_metric(function(){return 0;})
 	.init_source_metric(function(){return Infinity;})
@@ -306,7 +306,7 @@ Example:
 
 ### Girvan Newman Network Clustering Althorithm
 ```js
-	var G = graph().nodes(nodes).edges(edges).create();
+	var G = dm.Graph().nodes(nodes).edges(edges).create();
 	// console.log('G', G.nodes(), G.edges());
 	// var ebc = edge_betweenness_centrality().graph(G);
 
@@ -315,7 +315,7 @@ Example:
 	// var ptree = print_ready_tree(tree);
 
 	// console.log('ptree', JSON.stringify(ptree, null, 2));
-	var ge = girvan_newman().graph(G);
+	var ge = dm.GirvanNewman().graph(G);
 	var tree = ge();
 	console.log('tree', tree);
 ```
