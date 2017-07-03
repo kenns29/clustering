@@ -2,3 +2,5 @@
 desktop.ini
 node_modules/
 bower_components/
+npm-debug*
+dist/*.map
