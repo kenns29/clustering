@@ -1,7 +1,7 @@
 {
-  "name": "dmjs",
+  "name": "data-clustering",
   "version": "0.0.1",
-  "main": "dist/dm.js",
+  "main": "dist/clustering.js",
   "ignore": [
     "dist/concat",
     "node_modules",

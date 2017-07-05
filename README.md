@@ -4,16 +4,16 @@ A set of clustering tool for javascript
 ## Installation
 ##### npm
 ```
-npm install clustering
+npm install data-clustering
 ```
 ##### bower
 ```
-bower install clustering
+bower install data-clustering
 ```
 ## Usage
 if using npm:
 ```
-import * as cl from 'clustering';
+import * as cl from 'data-clustering';
 ```
 if using bower
 ```html
