@@ -6,8 +6,8 @@ module.exports = exports = {
   devtool: 'source-map',
   output: {
       path: path.join(__dirname,'dist'),
-      filename: 'dm.js',
-      library: ["dm"],
+      filename: 'clustering.js',
+      library: ["cl"],
 		  libraryTarget: "umd",
       publicPath: '/'
   },

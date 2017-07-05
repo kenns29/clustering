@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["dm"] = factory();
+		exports["cl"] = factory();
 	else
-		root["dm"] = factory();
+		root["cl"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -70,11 +70,57 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.isArray = isArray;
+exports.array2map = array2map;
+exports.map2values = map2values;
+exports.functor = functor;
+exports.key_functor = key_functor;
+function isArray(v) {
+	return Object.prototype.toString.call(v) === '[object Array]';
+};
+
+function array2map(array, key) {
+	var f = key_functor(key);
+	return array.reduce(function (pre, cur) {
+		return pre.set(f(cur), cur);
+	}, new Map());
+};
+function map2values(map) {
+	var values = Array(map.size);
+	var idx = 0;
+	map.forEach(function (value) {
+		values[idx++] = value;
+	});
+	return values;
+};
+
+function functor(f) {
+	return typeof f === 'function' ? f : function () {
+		return f;
+	};
+};
+
+function key_functor(f) {
+	return typeof f === 'function' ? f : function (d) {
+		return d[f];
+	};
+};
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -90,7 +136,7 @@ exports.default = function () {
 
 exports.Evaluation = Evaluation;
 
-var _statistic = __webpack_require__(13);
+var _statistic = __webpack_require__(2);
 
 ;
 function Evaluation() {
@@ -149,14 +195,500 @@ function Evaluation() {
 };
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(2);
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.corr = corr;
+exports.cov = cov;
+exports.mean = mean;
+exports.std = std;
+exports.L1_norm = L1_norm;
+exports.L2_norm = L2_norm;
+exports.dotp = dotp;
+exports.mult_m = mult_m;
+exports.inv_m = inv_m;
+
+var _utils = __webpack_require__(0);
+
+function corr(v) {
+	if (v.length === 0) {
+		return 0;
+	} else if ((0, _utils.isArray)(v[0])) {
+		var SIGMA = cov(v);
+		var standard_dev = std(v);
+		for (var i = 0; i < SIGMA.length; i++) {
+			for (var j = 0; j < SIGMA.length; j++) {
+				if (standard_dev[i] === standard_dev[j] === 0) {
+					SIGMA[i][j] = 1;
+				} else if (standard_div[i] === 0 || standard_dev[j] === 0) {
+					SIGMA[i][j] = 0;
+				} else {
+					SIGMA[i][j] /= standard_dev[i] * standard_dev[j];
+				}
+			}
+		}
+		return SIGMA;
+	} else {
+		return std(v);
+	}
+};
+
+/*
+* Compute the covariance matrix of data points a and b
+* both a and b are matrix in which the rows represent the data points and
+* the columns represent the attributes
+* the matrix is in the form of array of array[[data point],[data point],[data point]...]
+*/
+function cov(v) {
+	if (v.length === 0) {
+		return 0;
+	} else if ((0, _utils.isArray)(v[0])) {
+		var m = mean(v);
+		var matrix = Array(v[0].length).fill(Array(v[0].length).fill(0));
+		for (var i = 0; i < v[0].length; i++) {
+			for (var j = 0; j < v[0].length; j++) {
+				var sum = 0;
+				for (var k = 0; k < v.length; k++) {
+					sum += (v[k][i] - m[i]) * (v[k][j] - m[j]);
+				}
+				matrix[i][j] = sum / v.length;
+			}
+		}
+		return matrix;
+	} else {
+		return variance(v);
+	}
+}
+
+function variance(v) {
+	var m, sum, i, j;
+	if (v.length === 0) {
+		return 0;
+	} else if ((0, _utils.isArray)(v[0])) {
+		m = mean(v);
+		sum = Array(v[0]).fill(0);
+		for (i = 0; i < v.length; i++) {
+			for (j = 0; j < v[i].length; j++) {
+				sum[j] += (v[i][j] - m[j]) * (v[i][j] - m[j]);
+			}
+		}
+		return sum.map(function (d) {
+			return d / v.length;
+		});
+	} else {
+		m = mean(v);
+		sum = 0;
+		for (i = 0; i < v.length; i++) {
+			sum += (v[i] - m) * (v[i] - m);
+		}
+		return sum / v.length;
+	}
+}
+
+function mean(v) {
+	var sum, i, j;
+	if (v.length === 0) {
+		return 0;
+	} else if ((0, _utils.isArray)(v[0])) {
+		sum = Array(v[0].length).fill(0);
+		for (i = 0; i < v.length; i++) {
+			for (j = 0; j < v[i].length; j++) {
+				sum[j] += v[i][j];
+			}
+		}
+		return sum.map(function (d) {
+			return d / v.length;
+		});
+	} else {
+		sum = 0;
+		for (i = 0; i < v.length; i++) {
+			sum += v[i];
+		}
+		return sum / v.length;
+	}
+}
+
+function std(v) {
+	if (v.length === 0) {
+		return 0;
+	} else if ((0, _utils.isArray)(v[0])) {
+		return variance(v).map(function (d) {
+			return Math.sqrt(d);
+		});
+	} else {
+		return Math.sqrt(variance(v));
+	}
+}
+
+function L1_norm(v) {
+	if (v.length === 0) return 0;
+	return v.reduce(function (pre, cur, ind) {
+		return pre + Math.abs(cur);
+	}, 0);
+}
+
+function L2_norm(v) {
+	if (v.length === 0) return 0;
+	var sum = v.reduce(function (pre, cur, ind) {
+		return pre + cur * cur;
+	}, 0);
+
+	return Math.sqrt(sum);
+}
+
+function dotp(a, b) {
+	var sum = 0;
+	for (var i = 0; i < a.length; i++) {
+		sum += a[i] * b[i];
+	}
+	return sum;
+}
+
+function mult_m(a, b) {}
+
+//find inverse of matrix m
+function inv_m(m) {}
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports.default = function () {
+	var graph;
+	var edge;
+
+	function init_edge_betweenness() {
+		graph.edges().forEach(function (d) {
+			d.edge_betweenness = 0;
+		});
+	}
+	function flow() {
+		init_edge_betweenness();
+		graph.nodes().forEach(function (node) {
+			source_flow(node);
+		});
+	}
+
+	function source_flow(source) {
+		var i, j;
+		var node;
+		var upper_node;
+		var upper_weight_sum;
+		var flow;
+		var edge;
+		var bs = (0, _BreadthFirst2.default)().graph(graph).source(source);
+		var tree = bs();
+		init_flow(tree);
+
+		var leave = flow_leave(tree);
+		leave.forEach(function (d) {
+			leaf_flow(d, source);
+		});
+
+		leave.forEach(function (d) {
+			edge_betweenness(d, source);
+		});
+	}
+
+	function edge_betweenness(leaf) {
+		var i;
+		var node;
+		var in_node;
+		var edge;
+		var flow;
+		var stack = new Array();
+
+		stack.push(leaf);
+		while (stack.length > 0) {
+			node = stack.pop();
+			if (!node.visited) {
+				node.visited = true;
+				for (i = 0; i < node.in_flow.length; i++) {
+					in_node = node.in_flow[i];
+					flow = node.flow * (in_node.weight / node.weight);
+
+					edge = graph.undirected_edge(node.value, in_node.value);
+					edge.edge_betweenness = edge.edge_betweenness ? flow + edge.edge_betweenness : flow;
+
+					stack.push(in_node);
+				}
+			}
+		}
+	}
+
+	function leaf_flow(leaf) {
+		var i, j;
+		var node;
+		var in_node;
+		var flow;
+		var stack = new Array();
+		stack.push(leaf);
+		while (stack.length > 0) {
+			node = stack.pop();
+			for (i = 0; i < node.in_flow.length; i++) {
+				in_node = node.in_flow[i];
+				stack.push(in_node);
+				in_node.flow += node.flow * (in_node.weight / node.weight);
+			}
+		}
+	}
+
+	function ret() {
+		return flow(graph.nodes()[0]);
+	}
+
+	ret.graph = function (_) {
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+
+	return ret;
+
+	function init_flow(tree) {
+		recurse(tree);
+		function recurse(r) {
+			if (r) {
+				r.flow = 1;
+				r.children.forEach(recurse);
+			}
+		}
+	}
+	function upper_level_nodes(cur_level) {
+		var i;
+		var value;
+		var node;
+		var upper_level_map = new Map();
+		for (i = 0; i < cur_level.length; i++) {
+			node = cur_level[i];
+			upper_level_map.set(node.value.id, node);
+		}
+		return (0, _utils.map2values)(upper_level_map);
+	}
+
+	function tree_leave(tree) {
+		var leave = [];
+		recurse(tree);
+		return leave;
+		function recurse(r) {
+			if (r) {
+				if (!r.children || r.children.length === 0) leave.push(r);else {
+					r.children.forEach(recurse);
+				}
+			}
+		}
+	}
+
+	function flow_leave(tree) {
+		return tree_leave(tree).filter(function (d) {
+			return d.out_flow.length === 0;
+		});
+	}
+};
+
+var _utils = __webpack_require__(0);
+
+var _BreadthFirst = __webpack_require__(4);
+
+var _BreadthFirst2 = _interopRequireDefault(_BreadthFirst);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports.default = function () {
+	var graph;
+	var source;
+	var direction = 'undirected';
+
+	function visit(d) {
+		// console.log(d, d.id, d.bs_status.tree_node.weight, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
+	}
+
+	function init_nodes(nodes) {
+		nodes.forEach(function (d) {
+			d.bs_status = {
+				visited: false,
+				level: 0,
+				tree_node: null
+			};
+		});
+	}
+
+	function search() {
+		//the minimum spaning tree that are returned
+		var tree;
+		var tree_node;
+		var node;
+		var Q = (0, _Queue2.default)();
+		var nodes = graph.nodes();
+		init_nodes(nodes);
+
+		tree_node = {
+			level: 0,
+			in_flow: [],
+			out_flow: [],
+			weight: 1,
+			parent: null,
+			children: [],
+			value: source
+		};
+		tree = tree_node;
+
+		source.bs_status.tree_node = tree_node;
+		source.bs_status.visited = true;
+		Q.enqueue(source);
+		while (!Q.empty()) {
+			node = Q.dequeue();
+			node.all_neighbors().forEach(function (neighbor) {
+				if (!neighbor.bs_status.visited) {
+
+					tree_node = {
+						level: node.bs_status.level + 1,
+						in_flow: [],
+						out_flow: [],
+						weight: 0,
+						parent: node.bs_status.tree_node,
+						children: [],
+						value: neighbor
+					};
+
+					neighbor.bs_status.visited = true;
+					neighbor.bs_status.level = node.bs_status.level + 1;
+					neighbor.bs_status.tree_node = tree_node;
+
+					node.bs_status.tree_node.children.push(tree_node);
+
+					Q.enqueue(neighbor);
+				}
+				if (node.bs_status.level + 1 === neighbor.bs_status.level) {
+					neighbor.bs_status.tree_node.weight += node.bs_status.tree_node.weight;
+					neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
+					node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
+				}
+			});
+			visit(node);
+		}
+		clean_up();
+		return tree;
+	}
+
+	function clean_up() {
+		graph.nodes().forEach(function (d) {
+			delete d.bs_status;
+		});
+	}
+
+	function ret() {
+		return search();
+	}
+	ret.graph = function (_) {
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+	ret.direction = function (_) {
+		return arguments.length > 0 ? (direction = _, ret) : direction;
+	};
+	ret.visit = function (_) {
+		if (arguments.length > 0) visit = _;
+		return ret;
+	};
+	ret.source = function (_) {
+		return arguments.length > 0 ? (source = _, ret) : source;
+	};
+
+	return ret;
+};
+
+var _Queue = __webpack_require__(5);
+
+var _Queue2 = _interopRequireDefault(_Queue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports.default = function () {
+	var a = [],
+	    b = 0;
+
+	var Q = {
+		len: len,
+		empty: empty,
+		enqueue: enqueue,
+		dequeue: dequeue,
+		peek: peek
+	};
+
+	function len() {
+		return a.length - b;
+	}
+
+	function empty() {
+		return 0 == a.length;
+	}
+
+	function enqueue(b) {
+		a.push(b);
+	}
+
+	function dequeue() {
+		if (0 != a.length) {
+			var c = a[b];
+			2 * ++b >= a.length && (a = a.slice(b), b = 0);
+			return c;
+		}
+	}
+	function peek() {
+		return 0 < a.length ? a[b] : void 0;
+	}
+
+	return Q;
+};
+
+;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(7);
 
 
 /***/ }),
-/* 2 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -166,7 +698,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _HierachicalCluster = __webpack_require__(6);
+var _HierachicalCluster = __webpack_require__(8);
 
 Object.defineProperty(exports, 'HierachicalCluster', {
   enumerable: true,
@@ -175,7 +707,7 @@ Object.defineProperty(exports, 'HierachicalCluster', {
   }
 });
 
-var _ClusterEvaluation = __webpack_require__(7);
+var _ClusterEvaluation = __webpack_require__(9);
 
 Object.defineProperty(exports, 'ClusterEvaluation', {
   enumerable: true,
@@ -184,7 +716,7 @@ Object.defineProperty(exports, 'ClusterEvaluation', {
   }
 });
 
-var _Evaluation = __webpack_require__(0);
+var _Evaluation = __webpack_require__(1);
 
 Object.defineProperty(exports, 'Evaluation', {
   enumerable: true,
@@ -193,7 +725,7 @@ Object.defineProperty(exports, 'Evaluation', {
   }
 });
 
-var _GirvanNewman = __webpack_require__(21);
+var _GirvanNewman = __webpack_require__(10);
 
 Object.defineProperty(exports, 'GirvanNewman', {
   enumerable: true,
@@ -202,7 +734,7 @@ Object.defineProperty(exports, 'GirvanNewman', {
   }
 });
 
-var _BreadthFirst = __webpack_require__(19);
+var _BreadthFirst = __webpack_require__(4);
 
 Object.defineProperty(exports, 'BreadthFirst', {
   enumerable: true,
@@ -211,7 +743,7 @@ Object.defineProperty(exports, 'BreadthFirst', {
   }
 });
 
-var _Queue = __webpack_require__(20);
+var _Queue = __webpack_require__(5);
 
 Object.defineProperty(exports, 'Queue', {
   enumerable: true,
@@ -220,7 +752,7 @@ Object.defineProperty(exports, 'Queue', {
   }
 });
 
-var _KMean = __webpack_require__(12);
+var _KMean = __webpack_require__(11);
 
 Object.defineProperty(exports, 'KMean', {
   enumerable: true,
@@ -229,7 +761,7 @@ Object.defineProperty(exports, 'KMean', {
   }
 });
 
-var _ShortestPathDijkstra = __webpack_require__(22);
+var _ShortestPathDijkstra = __webpack_require__(12);
 
 Object.defineProperty(exports, 'ShortestPathDijkstra', {
   enumerable: true,
@@ -238,7 +770,7 @@ Object.defineProperty(exports, 'ShortestPathDijkstra', {
   }
 });
 
-var _SparseVector = __webpack_require__(16);
+var _SparseVector = __webpack_require__(14);
 
 Object.defineProperty(exports, 'SparseVector', {
   enumerable: true,
@@ -247,7 +779,7 @@ Object.defineProperty(exports, 'SparseVector', {
   }
 });
 
-var _Graph = __webpack_require__(23);
+var _Graph = __webpack_require__(15);
 
 Object.defineProperty(exports, 'Graph', {
   enumerable: true,
@@ -256,7 +788,7 @@ Object.defineProperty(exports, 'Graph', {
   }
 });
 
-var _EdgeBetweennessCentrality = __webpack_require__(18);
+var _EdgeBetweennessCentrality = __webpack_require__(3);
 
 Object.defineProperty(exports, 'EdgeBetweenessCentrality', {
   enumerable: true,
@@ -265,7 +797,7 @@ Object.defineProperty(exports, 'EdgeBetweenessCentrality', {
   }
 });
 
-var _utils = __webpack_require__(3);
+var _utils = __webpack_require__(0);
 
 Object.keys(_utils).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -277,7 +809,7 @@ Object.keys(_utils).forEach(function (key) {
   });
 });
 
-var _statistic = __webpack_require__(13);
+var _statistic = __webpack_require__(2);
 
 Object.keys(_statistic).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -289,7 +821,7 @@ Object.keys(_statistic).forEach(function (key) {
   });
 });
 
-var _distance_metrics = __webpack_require__(4);
+var _distance_metrics = __webpack_require__(16);
 
 Object.keys(_distance_metrics).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -301,7 +833,7 @@ Object.keys(_distance_metrics).forEach(function (key) {
   });
 });
 
-var _data_utils = __webpack_require__(5);
+var _data_utils = __webpack_require__(17);
 
 Object.keys(_data_utils).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -316,289 +848,7 @@ Object.keys(_data_utils).forEach(function (key) {
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.isArray = isArray;
-exports.array2map = array2map;
-exports.map2values = map2values;
-exports.functor = functor;
-exports.key_functor = key_functor;
-function isArray(v) {
-	return Object.prototype.toString.call(v) === '[object Array]';
-};
-
-function array2map(array, key) {
-	var f = key_functor(key);
-	return array.reduce(function (pre, cur) {
-		return pre.set(f(cur), cur);
-	}, new Map());
-};
-function map2values(map) {
-	var values = Array(map.size);
-	var idx = 0;
-	map.forEach(function (value) {
-		values[idx++] = value;
-	});
-	return values;
-};
-
-function functor(f) {
-	return typeof f === 'function' ? f : function () {
-		return f;
-	};
-};
-
-function key_functor(f) {
-	return typeof f === 'function' ? f : function (d) {
-		return d[f];
-	};
-};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.nominal_distance = nominal_distance;
-exports.nominal_similarity = nominal_similarity;
-exports.ordinal_distance = ordinal_distance;
-exports.ordian_similarity = ordian_similarity;
-exports.ratio_distance = ratio_distance;
-exports.ratio_similarity = ratio_similarity;
-exports.ratio_similarity1 = ratio_similarity1;
-exports.euclidean_distance = euclidean_distance;
-exports.minkowski_distance = minkowski_distance;
-exports.mahalanobis_distance = mahalanobis_distance;
-exports.jaccard_similarity = jaccard_similarity;
-exports.jaccard_distance = jaccard_distance;
-exports.tanimoto_similarity = tanimoto_similarity;
-exports.tanimoto_distance = tanimoto_distance;
-exports.smc_similarity = smc_similarity;
-exports.smc_distance = smc_distance;
-exports.cosine_distance = cosine_distance;
-exports.cosine_similarity = cosine_similarity;
-exports.correlation_similarity = correlation_similarity;
-exports.correlation_distance = correlation_distance;
-/*
-* Similarity/Dissimilarity for Simple Attributes
-*/
-function nominal_distance(a, b) {
-	return a === b ? 1 : 0;
-}
-
-function nominal_similarity(a, b) {
-	return 1 - nominal_distance(a, b);
-}
-
-function ordinal_distance(a, b, n) {
-	return Math.abs(a - b) / (n - 1);
-}
-
-function ordian_similarity(a, b, n) {
-	return 1 - ordinal_distance(a, b, n);
-}
-
-function ratio_distance(a, b) {
-	return Math.abs(a - b);
-}
-
-function ratio_similarity(a, b, min, max) {
-	if (arguments.length == 2) return 1 - ratio_distance(a, b);else if (arguments.length == 4) {
-		return 1 - (ratio_distance(a, b) - min) / (max - min);
-	}
-}
-
-function ratio_similarity1(a, b) {
-	return -ratio_distance(a, b);
-}
-
-/*
-* Similarity/Dissimilarity for Data Objects
-*/
-function euclidean_distance(a, b) {
-	var sum = 0;
-	for (var i = 0; i < a.length; i++) {
-		sum += (a[i] - b[i]) * (a[i] - b[i]);
-	}
-	return Math.sqrt(sum);
-}
-
-function minkowski_distance(a, b, r) {
-	var i;
-	if (r == Infinity) {
-		var max_dist = -Infinity;
-		for (i = 0; i < a.length; i++) {
-			var dist = Math.abs(a[i] - b[i]);
-			if (dist > max) {
-				max = dist;
-			}
-		}
-		return max_dist;
-	} else {
-		var sum = 0;
-		for (i = 0; i < a.length; i++) {
-			sum += Math.pow(Math.abs(a[i] - b[i]), r);
-		}
-		return Math.pow(sum, 1 / r);
-	}
-}
-
-function mahalanobis_distance(a, b, sigma) {}
-
-function jaccard_similarity(a, b) {
-	var m01 = 0,
-	    m10 = 0,
-	    m00 = 0,
-	    m11 = 0;
-	for (var i = 0; i < a.length; i++) {
-		if (a[i] == b[i] == 1) ++m11;else if (a[i] === 1 && b[i] === 0) ++m10;else if (a[i] === 0 && b[i] === 1) ++m01;else if (a[i] === 0 && b[i] === 0) ++m00;
-	}
-	return m01 + m10 + m11 > 0 ? m11 / (m01 + m10 + m11) : 1;
-}
-
-function jaccard_distance(a, b) {
-	return 1 - jaccard_similarity(a, b);
-}
-
-function tanimoto_similarity(a, b) {
-	var sum = 0,
-	    i = 0;
-	for (i = 0; i < a.length; i++) {
-		sum += a[i] * b[i];
-	}
-	var a_square = 0;
-	for (i = 0; i < a.length; i++) {
-		a_square += a[i] * a[i];
-	}
-	var b_square = 0;
-	for (i = 0; i < b.length; i++) {
-		b_square += b[i] * b[i];
-	}
-	return sum / (a_square + b_square - sum);
-}
-function tanimoto_distance(a, b) {
-	return 1 - tanimoto_similarity(a, b);
-}
-
-function smc_similarity(a, b) {
-	var m01 = 0,
-	    m10 = 0,
-	    m00 = 0,
-	    m11 = 0;
-	for (var i = 0; i < a.length; i++) {
-		if (a[i] == b[i] == 1) ++m11;else if (a[i] === 1 && b[i] === 0) ++m10;else if (a[i] === 0 && b[i] === 1) ++m01;else if (a[i] === 0 && b[i] === 0) ++m00;
-	}
-	return (m11 + m00) / (m01 + m10 + m11 + m00);
-}
-
-function smc_distance(a, b) {
-	return 1 - smc_similarity(a, b);
-}
-
-function cosine_distance(a, b) {
-	return 1 - cosine_similarity(a, b);
-}
-
-function cosine_similarity(a, b) {
-	var sum = 0;
-	for (var i = 0; i < a.length; i++) {
-		sum += a[i] * b[i];
-	}
-	return sum / (L2_norm(a) * L2_norm(b));
-}
-
-function correlation_similarity(a, b) {
-	var ma = mean(a);
-	var mb = mean(b);
-	var sa = std(a);
-	var sb = std(b);
-	if (sa === 0 && sb === 0) {
-		return 1;
-	} else if (sa === 0 || sb === 0) {
-		return 0;
-	}
-
-	var ak = a.map(function (d) {
-		return (d - ma) / sa;
-	});
-	var bk = b.map(function (d) {
-		return (d - mb) / sb;
-	});
-	return dotp(ak, bk);
-}
-
-function correlation_distance(a, b) {
-	return -correlation_similarity(a, b);
-}
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.array2clustering = array2clustering;
-exports.array2points = array2points;
-/*
-* Given array [[[..],[..]],
-	[..],
-	[..]]
-
-  make a cluster object from it
-*/
-function array2clustering(arr) {
-	var point_name = 0;
-	return arr.map(function (d, i) {
-		return {
-			name: 'C' + i,
-			value: {
-				points: d.map(function (g, j) {
-					++point_name;
-					return {
-						name: point_name.toString(),
-						value: {
-							point: g
-						}
-					};
-				})
-			}
-		};
-	});
-};
-
-/*
-* Given array [[..], [..], [..]]
-* Make point objects from it
-*/
-function array2points(arr) {
-	return arr.map(function (d, i) {
-		return {
-			name: (i + 1).toString(),
-			value: {
-				point: d
-			}
-		};
-	});
-};
-
-/***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -614,7 +864,7 @@ exports.default = function () {
 
 exports.HierachicalCluster = HierachicalCluster;
 
-var _utils = __webpack_require__(3);
+var _utils = __webpack_require__(0);
 
 ;
 function HierachicalCluster() {
@@ -1164,7 +1414,7 @@ HierachicalCluster.DATA_TYPE = {
 };
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1180,9 +1430,9 @@ exports.default = function () {
 
 exports.ClusterEvaluation = ClusterEvaluation;
 
-var _utils = __webpack_require__(3);
+var _utils = __webpack_require__(0);
 
-var _Evaluation = __webpack_require__(0);
+var _Evaluation = __webpack_require__(1);
 
 var _Evaluation2 = _interopRequireDefault(_Evaluation);
 
@@ -1441,11 +1691,228 @@ function ClusterEvaluation() {
 }
 
 /***/ }),
-/* 8 */,
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports.default = function () {
+	var graph;
+
+	var node_to_community = new Map();
+
+	function execute() {
+		var i, j;
+		var tree, tree_node;
+		var node;
+		var edge;
+		var ebc;
+		var clone_edges = graph.edges().slice(0);
+		var children_ids;
+		var max, max_edge_index;
+		var community;
+		var leave;
+
+		for (i = 0; i < graph.nodes().length; i++) {
+			node = graph.nodes()[i];
+			node_to_community.set(node.id, 0);
+		}
+
+		tree_node = {
+			id: 0,
+			com_id: 0,
+			name: '',
+			value: {
+				nodes: []
+			},
+			children: [],
+			metric: 0,
+			m: 0
+		};
+		tree = tree_node;
+
+		var communities = [graph.nodes()];
+		communities.id = 0;
+		var pre_communities = communities;
+		tree_node.value.nodes = communities[0];
+		tree_node.m = communities[0].length;
+		var level = graph.nodes().length + 10;
+		var id = 0;
+		var name;
+		while (graph.edges().length > 0) {
+			ebc = (0, _EdgeBetweennessCentrality2.default)().graph(graph);
+
+			ebc();
+
+			max = -Infinity;
+			max_edge_index = 0;
+
+			graph.edges().forEach(function (edge, i) {
+				if (max < edge.edge_betweenness) {
+					max_edge_index = i;
+					max = edge.edge_betweenness;
+				}
+			});
+			edge = graph.edges()[max_edge_index];
+			graph.remove_edge(edge);
+
+			pre_communities = communities;
+			communities = communitiy_detection(graph, communities);
+
+			if (pre_communities.length < communities.length) {
+				leave = tree_leave(tree);
+				for (i = 0; i < leave.length; i++) {
+					if (leave[i].com_id === pre_communities.break_id) {
+						tree_node = leave[i];
+						break;
+					}
+				}
+				children_ids = pre_communities[pre_communities.break_id].children_ids;
+				for (i = 0; i < children_ids.length; i++) {
+					name = '';
+					community = communities[children_ids[i]];
+					if (community.length === 1) {
+						name = community[0].name;
+					}
+					tree_node.children.push({
+						id: ++id,
+						com_id: community.id,
+						name: name,
+						value: {
+							nodes: community
+						},
+						children: [],
+						m: community.length,
+						metric: --level
+					});
+				}
+			}
+		}
+
+		graph.edges(clone_edges);
+		graph.create();
+		return tree;
+	}
+
+	function communitiy_detection(graph, parent_communities) {
+		var i, node;
+		var nodes = graph.nodes();
+		var node_map = (0, _utils.array2map)(nodes, function (d) {
+			return d.id;
+		});
+		var source;
+		var source_com_id;
+		//stores the current set of community ids
+		var com_ids = new Set();
+		var communities = [];
+		var com;
+		var com_id;
+		while (!node_map.size === 0) {
+			source = (0, _utils.map2values)(node_map)[0];
+			//get the current community id for the node
+			source_com_id = node_to_community.get(source.id);
+			//if the source node has a community id that's already been used
+			if (com_ids.has(source_com_id)) {
+				//create a new id for the community
+				com_id = parent_communities.length;
+				//mark the id for the community to be splited
+				parent_communities.break_id = source_com_id;
+				parent_communities[source_com_id].children_ids = [source_com_id, com_id];
+			} else {
+				//use the current id
+				com_id = source_com_id;
+				//add the id to the community set indicating the id is already used
+				com_ids.add(com_id);
+			}
+			com = community(source);
+			com.id = com_id;
+			com.parent_id = source_com_id;
+			communities[com_id] = com;
+		}
+
+		//update the node to community map
+		communities.forEach(function (community, i) {
+			community.forEach(function (node, j) {
+				node_to_community.set(node.id, community.id);
+			});
+		});
+
+		return communities;
+
+		//depth first search to detect community given a source node
+		function community(source) {
+			var i;
+			var node;
+			var community_nodes = [];
+			var neighbor;
+			var neighbors;
+			var visited_nodes = new Set();
+
+			var stack = new Array();
+			stack.push(source);
+
+			visited_nodes.add(source.id);
+			node_map.delete(source.id);
+			community_nodes.push(source);
+
+			while (stack.length > 0) {
+				node = stack.pop();
+				neighbors = node.all_neighbors();
+				for (i = 0; i < neighbors.length; i++) {
+					neighbor = neighbors[i];
+					if (!visited_nodes.has(neighbor.id)) {
+						visited_nodes.add(neighbor.id);
+
+						node_map.delete(neighbor.id);
+						community_nodes.push(neighbor);
+
+						stack.push(neighbor);
+					}
+				}
+			}
+			return community_nodes;
+		}
+	}
+
+	function tree_leave(tree) {
+		var leave = [];
+		recurse(tree);
+		return leave;
+		function recurse(r) {
+			if (r) {
+				if (!r.children || r.children.length === 0) leave.push(r);else r.children.forEach(recurse);
+			}
+		}
+	}
+
+	function ret() {
+		return execute();
+	}
+
+	ret.graph = function (_) {
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+
+	return ret;
+};
+
+var _EdgeBetweennessCentrality = __webpack_require__(3);
+
+var _EdgeBetweennessCentrality2 = _interopRequireDefault(_EdgeBetweennessCentrality);
+
+var _utils = __webpack_require__(0);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+;
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1461,9 +1928,9 @@ exports.default = function () {
 
 exports.KMean = KMean;
 
-var _utils = __webpack_require__(3);
+var _utils = __webpack_require__(0);
 
-var _Evaluation = __webpack_require__(0);
+var _Evaluation = __webpack_require__(1);
 
 var _Evaluation2 = _interopRequireDefault(_Evaluation);
 
@@ -1712,7 +2179,7 @@ function KMean() {
 };
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1721,160 +2188,229 @@ function KMean() {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.corr = corr;
-exports.cov = cov;
-exports.mean = mean;
-exports.std = std;
-exports.L1_norm = L1_norm;
-exports.L2_norm = L2_norm;
-exports.dotp = dotp;
-exports.mult_m = mult_m;
-exports.inv_m = inv_m;
 
-var _utils = __webpack_require__(3);
+exports.default = function () {
+	var graph;
+	var source, target;
+	/*
+ * 1) in
+ * 2) out
+ * 3) undirected
+ */
+	var direction = 'undirected';
+	var include_self_path = false;
 
-function corr(v) {
-	if (v.length === 0) {
+	function value_comparator(v1, v2) {
+		return v1 - v2;
+	}
+	function node_comparator(n1, n2) {
+		return value_comparator(n1.dk_status.metric, n2.dk_status.metric);
+	}
+	function init_metric() {
+		return Infinity;
+	}
+	function init_source_metric() {
 		return 0;
-	} else if ((0, _utils.isArray)(v[0])) {
-		var SIGMA = cov(v);
-		var standard_dev = std(v);
-		for (var i = 0; i < SIGMA.length; i++) {
-			for (var j = 0; j < SIGMA.length; j++) {
-				if (standard_dev[i] === standard_dev[j] === 0) {
-					SIGMA[i][j] = 1;
-				} else if (standard_div[i] === 0 || standard_dev[j] === 0) {
-					SIGMA[i][j] = 0;
-				} else {
-					SIGMA[i][j] /= standard_dev[i] * standard_dev[j];
+	}
+
+	function multi_source() {
+		var paths = graph.nodes().reduce(function (pre, cur, ind) {
+			source = cur;
+			return pre.concat(single_source());
+		}, []);
+
+		source = target = undefined;
+		return paths;
+	}
+
+	function single_source() {
+		if (direction === 'undirected') single_source_undirected();else if (direction === 'in') single_source_in();else if (direction === 'out') single_source_out();else single_source_out();
+		return all_paths();
+	}
+
+	//this is testing the undirected only
+	function single_source_undirected() {
+		var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new _jsPriorityQueue2.default({ comparator: node_comparator });
+
+		for (i = 0; i < nodes.length; i++) {
+			Q.queue(nodes[i]);
+		}
+
+		while (Q.length && Q.length > 0) {
+			cur_node = Q.dequeue();
+
+			for (i = 0; i < cur_node.edges().length; i++) {
+				edge = cur_node.edges()[i];
+				neighbor = cur_node.neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if (value_comparator(alt, neighbor.dk_status.metric) < 0) {
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
 				}
 			}
 		}
-		return SIGMA;
-	} else {
-		return std(v);
+		return ret;
 	}
+
+	function single_source_in() {
+		var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new _jsPriorityQueue2.default({ comparator: node_comparator });
+
+		for (i = 0; i < nodes.length; i++) {
+			Q.queue(nodes[i]);
+		}
+
+		while (Q.length && Q.length > 0) {
+			cur_node = Q.dequeue();
+			for (i = 0; i < cur_node.in_edges().length; i++) {
+				edge = cur_node.in_edges()[i];
+				neighbor = cur_node.in_neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if (value_comparator(alt, neighbor.dk_status.metric) < 0) {
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
+		return ret;
+	}
+
+	function single_source_out() {
+		var i, j;
+		var nodes = graph.nodes();
+		var edges = graph.edges();
+		var cur_node;
+		var alt;
+		var neighbor;
+		var edge;
+
+		init_nodes(nodes);
+
+		var Q = new _jsPriorityQueue2.default({ comparator: node_comparator });
+
+		for (i = 0; i < nodes.length; i++) {
+			Q.queue(nodes[i]);
+		}
+
+		while (Q.length && Q.length > 0) {
+			cur_node = Q.dequeue();
+			for (i = 0; i < cur_node.out_edges().length; i++) {
+				edge = cur_node.out_edges()[i];
+				neighbor = cur_node.out_neighbor(edge);
+				alt = edge.value + cur_node.dk_status.metric;
+				if (value_comparator(alt, neighbor.dk_status.metric) < 0) {
+					neighbor.dk_status.metric = alt;
+					neighbor.dk_status.backpointer = cur_node;
+				}
+			}
+		}
+		return ret;
+	}
+	function init_nodes(nodes) {
+		for (var i = 0; i < nodes.length; i++) {
+			nodes[i].dk_status = {};
+			nodes[i].dk_status.backpointer = null;
+			if (nodes[i] === source) {
+				nodes[i].dk_status.metric = init_source_metric();
+			} else {
+				nodes[i].dk_status.metric = init_metric();
+			}
+		}
+	}
+
+	function all_paths() {
+		var i, j;
+		var nodes = graph.nodes();
+		var node;
+		var paths = [];
+		var path;
+
+		for (i = 0; i < nodes.length; i++) {
+			path = [];
+			node = nodes[i];
+			do {
+				path.unshift(node);
+			} while (node = node.dk_status.backpointer);
+			if (include_self_path || path.length > 1) if (path[0] === source) paths.push(path);
+		}
+		return paths;
+	}
+
+	function ret() {
+		if (source && !target) {
+			return single_source();
+		} else if (!source && !target) {
+			return multi_source();
+		}
+	}
+
+	ret.graph = function (_) {
+		return arguments.length > 0 ? (graph = _, ret) : graph;
+	};
+
+	ret.source = function (_) {
+		return arguments.length > 0 ? (source = _, ret) : source;
+	};
+
+	ret.target = function (_) {
+		return arguments.length > 0 ? (target = _, ret) : target;
+	};
+
+	ret.direction = function (_) {
+		return arguments.length > 0 ? (direction = _, ret) : direction;
+	};
+
+	ret.comparator = function (_) {
+		if (arguments.length > 0) value_comparator = _;
+		return ret;
+	};
+
+	ret.init_metric = function (_) {
+		if (arguments.length > 0) init_metric = _;
+		return ret;
+	};
+
+	ret.init_source_metric = function (_) {
+		if (arguments.length > 0) init_source_metric = _;
+		return ret;
+	};
+
+	ret.self_path = function (_) {
+		return arguments.length > 0 ? (include_self_path = _, ret) : include_self_path;
+	};
+
+	return ret;
 };
 
-/*
-* Compute the covariance matrix of data points a and b
-* both a and b are matrix in which the rows represent the data points and
-* the columns represent the attributes
-* the matrix is in the form of array of array[[data point],[data point],[data point]...]
-*/
-function cov(v) {
-	if (v.length === 0) {
-		return 0;
-	} else if ((0, _utils.isArray)(v[0])) {
-		var m = mean(v);
-		var matrix = Array(v[0].length).fill(Array(v[0].length).fill(0));
-		for (var i = 0; i < v[0].length; i++) {
-			for (var j = 0; j < v[0].length; j++) {
-				var sum = 0;
-				for (var k = 0; k < v.length; k++) {
-					sum += (v[k][i] - m[i]) * (v[k][j] - m[j]);
-				}
-				matrix[i][j] = sum / v.length;
-			}
-		}
-		return matrix;
-	} else {
-		return variance(v);
-	}
-}
+var _jsPriorityQueue = __webpack_require__(13);
 
-function variance(v) {
-	var m, sum, i, j;
-	if (v.length === 0) {
-		return 0;
-	} else if ((0, _utils.isArray)(v[0])) {
-		m = mean(v);
-		sum = Array(v[0]).fill(0);
-		for (i = 0; i < v.length; i++) {
-			for (j = 0; j < v[i].length; j++) {
-				sum[j] += (v[i][j] - m[j]) * (v[i][j] - m[j]);
-			}
-		}
-		return sum.map(function (d) {
-			return d / v.length;
-		});
-	} else {
-		m = mean(v);
-		sum = 0;
-		for (i = 0; i < v.length; i++) {
-			sum += (v[i] - m) * (v[i] - m);
-		}
-		return sum / v.length;
-	}
-}
+var _jsPriorityQueue2 = _interopRequireDefault(_jsPriorityQueue);
 
-function mean(v) {
-	var sum, i, j;
-	if (v.length === 0) {
-		return 0;
-	} else if ((0, _utils.isArray)(v[0])) {
-		sum = Array(v[0].length).fill(0);
-		for (i = 0; i < v.length; i++) {
-			for (j = 0; j < v[i].length; j++) {
-				sum[j] += v[i][j];
-			}
-		}
-		return sum.map(function (d) {
-			return d / v.length;
-		});
-	} else {
-		sum = 0;
-		for (i = 0; i < v.length; i++) {
-			sum += v[i];
-		}
-		return sum / v.length;
-	}
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function std(v) {
-	if (v.length === 0) {
-		return 0;
-	} else if ((0, _utils.isArray)(v[0])) {
-		return variance(v).map(function (d) {
-			return Math.sqrt(d);
-		});
-	} else {
-		return Math.sqrt(variance(v));
-	}
-}
-
-function L1_norm(v) {
-	if (v.length === 0) return 0;
-	return v.reduce(function (pre, cur, ind) {
-		return pre + Math.abs(cur);
-	}, 0);
-}
-
-function L2_norm(v) {
-	if (v.length === 0) return 0;
-	var sum = v.reduce(function (pre, cur, ind) {
-		return pre + cur * cur;
-	}, 0);
-
-	return Math.sqrt(sum);
-}
-
-function dotp(a, b) {
-	var sum = 0;
-	for (var i = 0; i < a.length; i++) {
-		sum += a[i] * b[i];
-	}
-	return sum;
-}
-
-function mult_m(a, b) {}
-
-//find inverse of matrix m
-function inv_m(m) {}
+;
 
 /***/ }),
-/* 14 */,
-/* 15 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var require;var require;(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.PriorityQueue = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
@@ -2266,7 +2802,7 @@ module.exports = BinaryHeapStrategy = (function() {
 });
 
 /***/ }),
-/* 16 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2512,785 +3048,7 @@ function SparseVector(indices, values, size) {
 };
 
 /***/ }),
-/* 17 */,
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports.default = function () {
-	var graph;
-	var edge;
-
-	function init_edge_betweenness() {
-		graph.edges().forEach(function (d) {
-			d.edge_betweenness = 0;
-		});
-	}
-	function flow() {
-		init_edge_betweenness();
-		graph.nodes().forEach(function (node) {
-			source_flow(node);
-		});
-	}
-
-	function source_flow(source) {
-		var i, j;
-		var node;
-		var upper_node;
-		var upper_weight_sum;
-		var flow;
-		var edge;
-		var bs = (0, _BreadthFirst2.default)().graph(graph).source(source);
-		var tree = bs();
-		init_flow(tree);
-
-		var leave = flow_leave(tree);
-		leave.forEach(function (d) {
-			leaf_flow(d, source);
-		});
-
-		leave.forEach(function (d) {
-			edge_betweenness(d, source);
-		});
-	}
-
-	function edge_betweenness(leaf) {
-		var i;
-		var node;
-		var in_node;
-		var edge;
-		var flow;
-		var stack = new Array();
-
-		stack.push(leaf);
-		while (stack.length > 0) {
-			node = stack.pop();
-			if (!node.visited) {
-				node.visited = true;
-				for (i = 0; i < node.in_flow.length; i++) {
-					in_node = node.in_flow[i];
-					flow = node.flow * (in_node.weight / node.weight);
-
-					edge = graph.undirected_edge(node.value, in_node.value);
-					edge.edge_betweenness = edge.edge_betweenness ? flow + edge.edge_betweenness : flow;
-
-					stack.push(in_node);
-				}
-			}
-		}
-	}
-
-	function leaf_flow(leaf) {
-		var i, j;
-		var node;
-		var in_node;
-		var flow;
-		var stack = new Array();
-		stack.push(leaf);
-		while (stack.length > 0) {
-			node = stack.pop();
-			for (i = 0; i < node.in_flow.length; i++) {
-				in_node = node.in_flow[i];
-				stack.push(in_node);
-				in_node.flow += node.flow * (in_node.weight / node.weight);
-			}
-		}
-	}
-
-	function ret() {
-		return flow(graph.nodes()[0]);
-	}
-
-	ret.graph = function (_) {
-		return arguments.length > 0 ? (graph = _, ret) : graph;
-	};
-
-	return ret;
-
-	function init_flow(tree) {
-		recurse(tree);
-		function recurse(r) {
-			if (r) {
-				r.flow = 1;
-				r.children.forEach(recurse);
-			}
-		}
-	}
-	function upper_level_nodes(cur_level) {
-		var i;
-		var value;
-		var node;
-		var upper_level_map = new Map();
-		for (i = 0; i < cur_level.length; i++) {
-			node = cur_level[i];
-			upper_level_map.set(node.value.id, node);
-		}
-		return (0, _utils.map2values)(upper_level_map);
-	}
-
-	function tree_leave(tree) {
-		var leave = [];
-		recurse(tree);
-		return leave;
-		function recurse(r) {
-			if (r) {
-				if (!r.children || r.children.length === 0) leave.push(r);else {
-					r.children.forEach(recurse);
-				}
-			}
-		}
-	}
-
-	function flow_leave(tree) {
-		return tree_leave(tree).filter(function (d) {
-			return d.out_flow.length === 0;
-		});
-	}
-};
-
-var _utils = __webpack_require__(3);
-
-var _BreadthFirst = __webpack_require__(19);
-
-var _BreadthFirst2 = _interopRequireDefault(_BreadthFirst);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-;
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports.default = function () {
-	var graph;
-	var source;
-	var direction = 'undirected';
-
-	function visit(d) {
-		// console.log(d, d.id, d.bs_status.tree_node.weight, d.bs_status.visited, d.bs_status.level, d.all_neighbors().map(function(d){return d.id;}));
-	}
-
-	function init_nodes(nodes) {
-		nodes.forEach(function (d) {
-			d.bs_status = {
-				visited: false,
-				level: 0,
-				tree_node: null
-			};
-		});
-	}
-
-	function search() {
-		//the minimum spaning tree that are returned
-		var tree;
-		var tree_node;
-		var node;
-		var Q = (0, _Queue2.default)();
-		var nodes = graph.nodes();
-		init_nodes(nodes);
-
-		tree_node = {
-			level: 0,
-			in_flow: [],
-			out_flow: [],
-			weight: 1,
-			parent: null,
-			children: [],
-			value: source
-		};
-		tree = tree_node;
-
-		source.bs_status.tree_node = tree_node;
-		source.bs_status.visited = true;
-		Q.enqueue(source);
-		while (!Q.empty()) {
-			node = Q.dequeue();
-			node.all_neighbors().forEach(function (neighbor) {
-				if (!neighbor.bs_status.visited) {
-
-					tree_node = {
-						level: node.bs_status.level + 1,
-						in_flow: [],
-						out_flow: [],
-						weight: 0,
-						parent: node.bs_status.tree_node,
-						children: [],
-						value: neighbor
-					};
-
-					neighbor.bs_status.visited = true;
-					neighbor.bs_status.level = node.bs_status.level + 1;
-					neighbor.bs_status.tree_node = tree_node;
-
-					node.bs_status.tree_node.children.push(tree_node);
-
-					Q.enqueue(neighbor);
-				}
-				if (node.bs_status.level + 1 === neighbor.bs_status.level) {
-					neighbor.bs_status.tree_node.weight += node.bs_status.tree_node.weight;
-					neighbor.bs_status.tree_node.in_flow.push(node.bs_status.tree_node);
-					node.bs_status.tree_node.out_flow.push(neighbor.bs_status.tree_node);
-				}
-			});
-			visit(node);
-		}
-		clean_up();
-		return tree;
-	}
-
-	function clean_up() {
-		graph.nodes().forEach(function (d) {
-			delete d.bs_status;
-		});
-	}
-
-	function ret() {
-		return search();
-	}
-	ret.graph = function (_) {
-		return arguments.length > 0 ? (graph = _, ret) : graph;
-	};
-	ret.direction = function (_) {
-		return arguments.length > 0 ? (direction = _, ret) : direction;
-	};
-	ret.visit = function (_) {
-		if (arguments.length > 0) visit = _;
-		return ret;
-	};
-	ret.source = function (_) {
-		return arguments.length > 0 ? (source = _, ret) : source;
-	};
-
-	return ret;
-};
-
-var _Queue = __webpack_require__(20);
-
-var _Queue2 = _interopRequireDefault(_Queue);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-;
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports.default = function () {
-	var a = [],
-	    b = 0;
-
-	var Q = {
-		len: len,
-		empty: empty,
-		enqueue: enqueue,
-		dequeue: dequeue,
-		peek: peek
-	};
-
-	function len() {
-		return a.length - b;
-	}
-
-	function empty() {
-		return 0 == a.length;
-	}
-
-	function enqueue(b) {
-		a.push(b);
-	}
-
-	function dequeue() {
-		if (0 != a.length) {
-			var c = a[b];
-			2 * ++b >= a.length && (a = a.slice(b), b = 0);
-			return c;
-		}
-	}
-	function peek() {
-		return 0 < a.length ? a[b] : void 0;
-	}
-
-	return Q;
-};
-
-;
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports.default = function () {
-	var graph;
-
-	var node_to_community = new Map();
-
-	function execute() {
-		var i, j;
-		var tree, tree_node;
-		var node;
-		var edge;
-		var ebc;
-		var clone_edges = graph.edges().slice(0);
-		var children_ids;
-		var max, max_edge_index;
-		var community;
-		var leave;
-
-		for (i = 0; i < graph.nodes().length; i++) {
-			node = graph.nodes()[i];
-			node_to_community.set(node.id, 0);
-		}
-
-		tree_node = {
-			id: 0,
-			com_id: 0,
-			name: '',
-			value: {
-				nodes: []
-			},
-			children: [],
-			metric: 0,
-			m: 0
-		};
-		tree = tree_node;
-
-		var communities = [graph.nodes()];
-		communities.id = 0;
-		var pre_communities = communities;
-		tree_node.value.nodes = communities[0];
-		tree_node.m = communities[0].length;
-		var level = graph.nodes().length + 10;
-		var id = 0;
-		var name;
-		while (graph.edges().length > 0) {
-			ebc = (0, _EdgeBetweennessCentrality2.default)().graph(graph);
-
-			ebc();
-
-			max = -Infinity;
-			max_edge_index = 0;
-
-			graph.edges().forEach(function (edge, i) {
-				if (max < edge.edge_betweenness) {
-					max_edge_index = i;
-					max = edge.edge_betweenness;
-				}
-			});
-			edge = graph.edges()[max_edge_index];
-			graph.remove_edge(edge);
-
-			pre_communities = communities;
-			communities = communitiy_detection(graph, communities);
-
-			if (pre_communities.length < communities.length) {
-				leave = tree_leave(tree);
-				for (i = 0; i < leave.length; i++) {
-					if (leave[i].com_id === pre_communities.break_id) {
-						tree_node = leave[i];
-						break;
-					}
-				}
-				children_ids = pre_communities[pre_communities.break_id].children_ids;
-				for (i = 0; i < children_ids.length; i++) {
-					name = '';
-					community = communities[children_ids[i]];
-					if (community.length === 1) {
-						name = community[0].name;
-					}
-					tree_node.children.push({
-						id: ++id,
-						com_id: community.id,
-						name: name,
-						value: {
-							nodes: community
-						},
-						children: [],
-						m: community.length,
-						metric: --level
-					});
-				}
-			}
-		}
-
-		graph.edges(clone_edges);
-		graph.create();
-		return tree;
-	}
-
-	function communitiy_detection(graph, parent_communities) {
-		var i, node;
-		var nodes = graph.nodes();
-		var node_map = (0, _utils.array2map)(nodes, function (d) {
-			return d.id;
-		});
-		var source;
-		var source_com_id;
-		//stores the current set of community ids
-		var com_ids = new Set();
-		var communities = [];
-		var com;
-		var com_id;
-		while (!node_map.size === 0) {
-			source = (0, _utils.map2values)(node_map)[0];
-			//get the current community id for the node
-			source_com_id = node_to_community.get(source.id);
-			//if the source node has a community id that's already been used
-			if (com_ids.has(source_com_id)) {
-				//create a new id for the community
-				com_id = parent_communities.length;
-				//mark the id for the community to be splited
-				parent_communities.break_id = source_com_id;
-				parent_communities[source_com_id].children_ids = [source_com_id, com_id];
-			} else {
-				//use the current id
-				com_id = source_com_id;
-				//add the id to the community set indicating the id is already used
-				com_ids.add(com_id);
-			}
-			com = community(source);
-			com.id = com_id;
-			com.parent_id = source_com_id;
-			communities[com_id] = com;
-		}
-
-		//update the node to community map
-		communities.forEach(function (community, i) {
-			community.forEach(function (node, j) {
-				node_to_community.set(node.id, community.id);
-			});
-		});
-
-		return communities;
-
-		//depth first search to detect community given a source node
-		function community(source) {
-			var i;
-			var node;
-			var community_nodes = [];
-			var neighbor;
-			var neighbors;
-			var visited_nodes = new Set();
-
-			var stack = new Array();
-			stack.push(source);
-
-			visited_nodes.add(source.id);
-			node_map.delete(source.id);
-			community_nodes.push(source);
-
-			while (stack.length > 0) {
-				node = stack.pop();
-				neighbors = node.all_neighbors();
-				for (i = 0; i < neighbors.length; i++) {
-					neighbor = neighbors[i];
-					if (!visited_nodes.has(neighbor.id)) {
-						visited_nodes.add(neighbor.id);
-
-						node_map.delete(neighbor.id);
-						community_nodes.push(neighbor);
-
-						stack.push(neighbor);
-					}
-				}
-			}
-			return community_nodes;
-		}
-	}
-
-	function tree_leave(tree) {
-		var leave = [];
-		recurse(tree);
-		return leave;
-		function recurse(r) {
-			if (r) {
-				if (!r.children || r.children.length === 0) leave.push(r);else r.children.forEach(recurse);
-			}
-		}
-	}
-
-	function ret() {
-		return execute();
-	}
-
-	ret.graph = function (_) {
-		return arguments.length > 0 ? (graph = _, ret) : graph;
-	};
-
-	return ret;
-};
-
-var _EdgeBetweennessCentrality = __webpack_require__(18);
-
-var _EdgeBetweennessCentrality2 = _interopRequireDefault(_EdgeBetweennessCentrality);
-
-var _utils = __webpack_require__(3);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-;
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports.default = function () {
-	var graph;
-	var source, target;
-	/*
- * 1) in
- * 2) out
- * 3) undirected
- */
-	var direction = 'undirected';
-	var include_self_path = false;
-
-	function value_comparator(v1, v2) {
-		return v1 - v2;
-	}
-	function node_comparator(n1, n2) {
-		return value_comparator(n1.dk_status.metric, n2.dk_status.metric);
-	}
-	function init_metric() {
-		return Infinity;
-	}
-	function init_source_metric() {
-		return 0;
-	}
-
-	function multi_source() {
-		var paths = graph.nodes().reduce(function (pre, cur, ind) {
-			source = cur;
-			return pre.concat(single_source());
-		}, []);
-
-		source = target = undefined;
-		return paths;
-	}
-
-	function single_source() {
-		if (direction === 'undirected') single_source_undirected();else if (direction === 'in') single_source_in();else if (direction === 'out') single_source_out();else single_source_out();
-		return all_paths();
-	}
-
-	//this is testing the undirected only
-	function single_source_undirected() {
-		var i, j;
-		var nodes = graph.nodes();
-		var edges = graph.edges();
-		var cur_node;
-		var alt;
-		var neighbor;
-		var edge;
-
-		init_nodes(nodes);
-
-		var Q = new _jsPriorityQueue2.default({ comparator: node_comparator });
-
-		for (i = 0; i < nodes.length; i++) {
-			Q.queue(nodes[i]);
-		}
-
-		while (Q.length && Q.length > 0) {
-			cur_node = Q.dequeue();
-
-			for (i = 0; i < cur_node.edges().length; i++) {
-				edge = cur_node.edges()[i];
-				neighbor = cur_node.neighbor(edge);
-				alt = edge.value + cur_node.dk_status.metric;
-				if (value_comparator(alt, neighbor.dk_status.metric) < 0) {
-					neighbor.dk_status.metric = alt;
-					neighbor.dk_status.backpointer = cur_node;
-				}
-			}
-		}
-		return ret;
-	}
-
-	function single_source_in() {
-		var i, j;
-		var nodes = graph.nodes();
-		var edges = graph.edges();
-		var cur_node;
-		var alt;
-		var neighbor;
-		var edge;
-
-		init_nodes(nodes);
-
-		var Q = new _jsPriorityQueue2.default({ comparator: node_comparator });
-
-		for (i = 0; i < nodes.length; i++) {
-			Q.queue(nodes[i]);
-		}
-
-		while (Q.length && Q.length > 0) {
-			cur_node = Q.dequeue();
-			for (i = 0; i < cur_node.in_edges().length; i++) {
-				edge = cur_node.in_edges()[i];
-				neighbor = cur_node.in_neighbor(edge);
-				alt = edge.value + cur_node.dk_status.metric;
-				if (value_comparator(alt, neighbor.dk_status.metric) < 0) {
-					neighbor.dk_status.metric = alt;
-					neighbor.dk_status.backpointer = cur_node;
-				}
-			}
-		}
-		return ret;
-	}
-
-	function single_source_out() {
-		var i, j;
-		var nodes = graph.nodes();
-		var edges = graph.edges();
-		var cur_node;
-		var alt;
-		var neighbor;
-		var edge;
-
-		init_nodes(nodes);
-
-		var Q = new _jsPriorityQueue2.default({ comparator: node_comparator });
-
-		for (i = 0; i < nodes.length; i++) {
-			Q.queue(nodes[i]);
-		}
-
-		while (Q.length && Q.length > 0) {
-			cur_node = Q.dequeue();
-			for (i = 0; i < cur_node.out_edges().length; i++) {
-				edge = cur_node.out_edges()[i];
-				neighbor = cur_node.out_neighbor(edge);
-				alt = edge.value + cur_node.dk_status.metric;
-				if (value_comparator(alt, neighbor.dk_status.metric) < 0) {
-					neighbor.dk_status.metric = alt;
-					neighbor.dk_status.backpointer = cur_node;
-				}
-			}
-		}
-		return ret;
-	}
-	function init_nodes(nodes) {
-		for (var i = 0; i < nodes.length; i++) {
-			nodes[i].dk_status = {};
-			nodes[i].dk_status.backpointer = null;
-			if (nodes[i] === source) {
-				nodes[i].dk_status.metric = init_source_metric();
-			} else {
-				nodes[i].dk_status.metric = init_metric();
-			}
-		}
-	}
-
-	function all_paths() {
-		var i, j;
-		var nodes = graph.nodes();
-		var node;
-		var paths = [];
-		var path;
-
-		for (i = 0; i < nodes.length; i++) {
-			path = [];
-			node = nodes[i];
-			do {
-				path.unshift(node);
-			} while (node = node.dk_status.backpointer);
-			if (include_self_path || path.length > 1) if (path[0] === source) paths.push(path);
-		}
-		return paths;
-	}
-
-	function ret() {
-		if (source && !target) {
-			return single_source();
-		} else if (!source && !target) {
-			return multi_source();
-		}
-	}
-
-	ret.graph = function (_) {
-		return arguments.length > 0 ? (graph = _, ret) : graph;
-	};
-
-	ret.source = function (_) {
-		return arguments.length > 0 ? (source = _, ret) : source;
-	};
-
-	ret.target = function (_) {
-		return arguments.length > 0 ? (target = _, ret) : target;
-	};
-
-	ret.direction = function (_) {
-		return arguments.length > 0 ? (direction = _, ret) : direction;
-	};
-
-	ret.comparator = function (_) {
-		if (arguments.length > 0) value_comparator = _;
-		return ret;
-	};
-
-	ret.init_metric = function (_) {
-		if (arguments.length > 0) init_metric = _;
-		return ret;
-	};
-
-	ret.init_source_metric = function (_) {
-		if (arguments.length > 0) init_source_metric = _;
-		return ret;
-	};
-
-	ret.self_path = function (_) {
-		return arguments.length > 0 ? (include_self_path = _, ret) : include_self_path;
-	};
-
-	return ret;
-};
-
-var _jsPriorityQueue = __webpack_require__(15);
-
-var _jsPriorityQueue2 = _interopRequireDefault(_jsPriorityQueue);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-;
-
-/***/ }),
-/* 23 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3566,11 +3324,247 @@ exports.default = function () {
   return ret;
 };
 
-var _utils = __webpack_require__(3);
+var _utils = __webpack_require__(0);
 
 ;
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.nominal_distance = nominal_distance;
+exports.nominal_similarity = nominal_similarity;
+exports.ordinal_distance = ordinal_distance;
+exports.ordian_similarity = ordian_similarity;
+exports.ratio_distance = ratio_distance;
+exports.ratio_similarity = ratio_similarity;
+exports.ratio_similarity1 = ratio_similarity1;
+exports.euclidean_distance = euclidean_distance;
+exports.minkowski_distance = minkowski_distance;
+exports.mahalanobis_distance = mahalanobis_distance;
+exports.jaccard_similarity = jaccard_similarity;
+exports.jaccard_distance = jaccard_distance;
+exports.tanimoto_similarity = tanimoto_similarity;
+exports.tanimoto_distance = tanimoto_distance;
+exports.smc_similarity = smc_similarity;
+exports.smc_distance = smc_distance;
+exports.cosine_distance = cosine_distance;
+exports.cosine_similarity = cosine_similarity;
+exports.correlation_similarity = correlation_similarity;
+exports.correlation_distance = correlation_distance;
+/*
+* Similarity/Dissimilarity for Simple Attributes
+*/
+function nominal_distance(a, b) {
+	return a === b ? 1 : 0;
+}
+
+function nominal_similarity(a, b) {
+	return 1 - nominal_distance(a, b);
+}
+
+function ordinal_distance(a, b, n) {
+	return Math.abs(a - b) / (n - 1);
+}
+
+function ordian_similarity(a, b, n) {
+	return 1 - ordinal_distance(a, b, n);
+}
+
+function ratio_distance(a, b) {
+	return Math.abs(a - b);
+}
+
+function ratio_similarity(a, b, min, max) {
+	if (arguments.length == 2) return 1 - ratio_distance(a, b);else if (arguments.length == 4) {
+		return 1 - (ratio_distance(a, b) - min) / (max - min);
+	}
+}
+
+function ratio_similarity1(a, b) {
+	return -ratio_distance(a, b);
+}
+
+/*
+* Similarity/Dissimilarity for Data Objects
+*/
+function euclidean_distance(a, b) {
+	var sum = 0;
+	for (var i = 0; i < a.length; i++) {
+		sum += (a[i] - b[i]) * (a[i] - b[i]);
+	}
+	return Math.sqrt(sum);
+}
+
+function minkowski_distance(a, b, r) {
+	var i;
+	if (r == Infinity) {
+		var max_dist = -Infinity;
+		for (i = 0; i < a.length; i++) {
+			var dist = Math.abs(a[i] - b[i]);
+			if (dist > max) {
+				max = dist;
+			}
+		}
+		return max_dist;
+	} else {
+		var sum = 0;
+		for (i = 0; i < a.length; i++) {
+			sum += Math.pow(Math.abs(a[i] - b[i]), r);
+		}
+		return Math.pow(sum, 1 / r);
+	}
+}
+
+function mahalanobis_distance(a, b, sigma) {}
+
+function jaccard_similarity(a, b) {
+	var m01 = 0,
+	    m10 = 0,
+	    m00 = 0,
+	    m11 = 0;
+	for (var i = 0; i < a.length; i++) {
+		if (a[i] == b[i] == 1) ++m11;else if (a[i] === 1 && b[i] === 0) ++m10;else if (a[i] === 0 && b[i] === 1) ++m01;else if (a[i] === 0 && b[i] === 0) ++m00;
+	}
+	return m01 + m10 + m11 > 0 ? m11 / (m01 + m10 + m11) : 1;
+}
+
+function jaccard_distance(a, b) {
+	return 1 - jaccard_similarity(a, b);
+}
+
+function tanimoto_similarity(a, b) {
+	var sum = 0,
+	    i = 0;
+	for (i = 0; i < a.length; i++) {
+		sum += a[i] * b[i];
+	}
+	var a_square = 0;
+	for (i = 0; i < a.length; i++) {
+		a_square += a[i] * a[i];
+	}
+	var b_square = 0;
+	for (i = 0; i < b.length; i++) {
+		b_square += b[i] * b[i];
+	}
+	return sum / (a_square + b_square - sum);
+}
+function tanimoto_distance(a, b) {
+	return 1 - tanimoto_similarity(a, b);
+}
+
+function smc_similarity(a, b) {
+	var m01 = 0,
+	    m10 = 0,
+	    m00 = 0,
+	    m11 = 0;
+	for (var i = 0; i < a.length; i++) {
+		if (a[i] == b[i] == 1) ++m11;else if (a[i] === 1 && b[i] === 0) ++m10;else if (a[i] === 0 && b[i] === 1) ++m01;else if (a[i] === 0 && b[i] === 0) ++m00;
+	}
+	return (m11 + m00) / (m01 + m10 + m11 + m00);
+}
+
+function smc_distance(a, b) {
+	return 1 - smc_similarity(a, b);
+}
+
+function cosine_distance(a, b) {
+	return 1 - cosine_similarity(a, b);
+}
+
+function cosine_similarity(a, b) {
+	var sum = 0;
+	for (var i = 0; i < a.length; i++) {
+		sum += a[i] * b[i];
+	}
+	return sum / (L2_norm(a) * L2_norm(b));
+}
+
+function correlation_similarity(a, b) {
+	var ma = mean(a);
+	var mb = mean(b);
+	var sa = std(a);
+	var sb = std(b);
+	if (sa === 0 && sb === 0) {
+		return 1;
+	} else if (sa === 0 || sb === 0) {
+		return 0;
+	}
+
+	var ak = a.map(function (d) {
+		return (d - ma) / sa;
+	});
+	var bk = b.map(function (d) {
+		return (d - mb) / sb;
+	});
+	return dotp(ak, bk);
+}
+
+function correlation_distance(a, b) {
+	return -correlation_similarity(a, b);
+}
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.array2clustering = array2clustering;
+exports.array2points = array2points;
+/*
+* Given array [[[..],[..]],
+	[..],
+	[..]]
+
+  make a cluster object from it
+*/
+function array2clustering(arr) {
+	var point_name = 0;
+	return arr.map(function (d, i) {
+		return {
+			name: 'C' + i,
+			value: {
+				points: d.map(function (g, j) {
+					++point_name;
+					return {
+						name: point_name.toString(),
+						value: {
+							point: g
+						}
+					};
+				})
+			}
+		};
+	});
+};
+
+/*
+* Given array [[..], [..], [..]]
+* Make point objects from it
+*/
+function array2points(arr) {
+	return arr.map(function (d, i) {
+		return {
+			name: (i + 1).toString(),
+			value: {
+				point: d
+			}
+		};
+	});
+};
 
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=dm.js.map
+//# sourceMappingURL=clustering.js.map

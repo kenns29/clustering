@@ -1,15 +1,23 @@
-# dmjs
-A set of data mining tool for javascript
-
+# clustering
+A set of clustering tool for javascript
 
 ## Installation
 ##### npm
 ```
-npm install dmjs
+npm install clustering
 ```
 ##### bower
 ```
-bower install dmjs
+bower install clustering
+```
+## Usage
+if using npm:
+```
+import * as cl from 'clustering';
+```
+if using bower
+```html
+<script src="bower_components/clustering/dist/clustering.js"></script>
 ```
 ## What's in it
 
@@ -19,7 +27,7 @@ bower install dmjs
 Example:
 
 ```javascript
-	var hc_cluster = new dm.HierachicalCluster()
+	var hc_cluster = cl.HierachicalCluster()
 	.data([{
 		name : '1',
 		value : {
@@ -62,7 +70,7 @@ Example:
 			point : [0, 11]
 		}
 	}])
-	.dist_metric(dm.euclidean_distance)
+	.dist_metric(cl.euclidean_distance)
 	.dist_fun('max')
 	.save_history(true)
 	.init()
@@ -73,7 +81,7 @@ Example:
 #### Kmeans Cluster
 Example:
 ```javascript
-	var km_cluster = new dm.KMean()
+	var km_cluster = cl.KMean()
 	.data([{
 		name : '1',
 		value : {
@@ -137,14 +145,14 @@ Example:
 	.accessor(function(d){return d.value.point;})
 	.centroid_fun('mean')
 	.numIteration(4)
-	.dist_metric(dm.euclidean_distance)
+	.dist_metric(cl.euclidean_distance)
 	.cluster();
 ```
 #### Clustering Evaluation
 Example:
 ```javascript
 	//create some points
-	var points = dm.array2points([
+	var points = cl.array2points([
 			[0.4, 0.53],
 			[0.22, 0.38],
 			[0.35, 0.32],
@@ -154,9 +162,9 @@ Example:
 		]);
 
 	//perform hierachical clustering
-	var cluster = new dm.HierachicalCluster()
+	var cluster = cl.HierachicalCluster()
 	.data(points)
-	.dist_metric(dm.euclidean_distance)
+	.dist_metric(cl.euclidean_distance)
 	.dist_fun('centroid')
 	.save_history(true)
 	.init()
@@ -166,21 +174,21 @@ Example:
 	var clustering = cluster.cut_opt('K').cut(3);
 
 	//creating the clustering evaluation object
-	var cev = new dm.ClusterEvaluation().data(clustering);
+	var cev = cl.ClusterEvaluation().data(clustering);
 
 	var wss = cev.WSS();
 	var bss = cev.BSS();
 	var tss = cev.TSS();
 	var silhouette = cev
-	.silhouette_dist_metric(dm.euclidean_distance)
+	.silhouette_dist_metric(cl.euclidean_distance)
 	.silhouette_coefficient();
 ```
 ### Sparse Vector
 Example:
 ```javascript
-	var v1 = new dm.SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
-	var v2 = new dm.SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
-	var v3 = new dm.SparseVector([1], [1]);
+	var v1 = cl.SparseVector([0, 1, 5, 6, 10], [1, 1, 1, 1, 1]);
+	var v2 = cl.SparseVector([0, 5, 10, 11], [1, 1, 1, 1]);
+	var v3 = cl.SparseVector([1], [1]);
 	var d = v1.dotp(v2);
 	var s = v1.sum(v2);
 	console.log('d', d);
@@ -288,9 +296,9 @@ Example:
 	}
 	];
 
-	var G = dm.Graph().nodes(nodes).edges(edges).create();
+	var G = cl.Graph().nodes(nodes).edges(edges).create();
 
-	var dk = dm.ShortestPathDijkstra()
+	var dk = cl.ShortestPathDijkstra()
 	.direction('out')
 	.init_metric(function(){return 0;})
 	.init_source_metric(function(){return Infinity;})
@@ -313,8 +321,8 @@ Example:
 
 ### Girvan Newman Network Clustering Althorithm
 ```javascript
-	var G = dm.Graph().nodes(nodes).edges(edges).create();
-	var ge = dm.GirvanNewman().graph(G);
+	var G = cl.Graph().nodes(nodes).edges(edges).create();
+	var ge = cl.GirvanNewman().graph(G);
 	var tree = ge();
 	console.log('tree', tree);
 ```

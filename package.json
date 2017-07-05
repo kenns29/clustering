@@ -1,5 +1,5 @@
 {
-  "name": "dmjs",
+  "name": "clustering",
   "main" : "src/main.js",
   "author": {
     "name" : "Hong Wang",
@@ -17,15 +17,6 @@
     "babel-loader": "^7.1.1",
     "babel-polyfill": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
-    "grunt": "~0.4.4",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-cssmin": "latest",
-    "grunt-contrib-jshint": "latest",
-    "grunt-contrib-less": "latest",
-    "grunt-contrib-uglify": "latest",
-    "grunt-contrib-watch": "latest",
-    "grunt-umd": "^2.4.0",
-    "jshint-stylish": "latest",
     "path": "^0.12.7",
     "tape": "^4.5.1",
     "webpack": "^3.0.0"
