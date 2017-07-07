@@ -1,11 +1,11 @@
 {
   "name": "data-clustering",
-  "main" : "src/main.js",
+  "main" : "dist/clustering.js",
   "author": {
     "name" : "Hong Wang",
     "email" : "kennsmacintosh@gmail.com"
   },
-  "version": "0.0.2",
+  "version": "0.1.0",
   "scripts": {
     "webpack": "webpack"
   },
