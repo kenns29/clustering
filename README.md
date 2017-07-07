@@ -13,6 +13,9 @@ bower install data-clustering
 ## Usage
 if using npm:
 ```
+const cl = require('data-clustering');
+```
+```
 import * as cl from 'data-clustering';
 ```
 if using bower
