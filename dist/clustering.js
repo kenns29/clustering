@@ -3358,6 +3358,9 @@ exports.cosine_distance = cosine_distance;
 exports.cosine_similarity = cosine_similarity;
 exports.correlation_similarity = correlation_similarity;
 exports.correlation_distance = correlation_distance;
+
+var _statistic = __webpack_require__(2);
+
 /*
 * Similarity/Dissimilarity for Simple Attributes
 */
@@ -3483,14 +3486,14 @@ function cosine_similarity(a, b) {
 	for (var i = 0; i < a.length; i++) {
 		sum += a[i] * b[i];
 	}
-	return sum / (L2_norm(a) * L2_norm(b));
+	return sum / ((0, _statistic.L2_norm)(a) * (0, _statistic.L2_norm)(b));
 }
 
 function correlation_similarity(a, b) {
-	var ma = mean(a);
-	var mb = mean(b);
-	var sa = std(a);
-	var sb = std(b);
+	var ma = (0, _statistic.mean)(a);
+	var mb = (0, _statistic.mean)(b);
+	var sa = (0, _statistic.std)(a);
+	var sb = (0, _statistic.std)(b);
 	if (sa === 0 && sb === 0) {
 		return 1;
 	} else if (sa === 0 || sb === 0) {
@@ -3503,7 +3506,7 @@ function correlation_similarity(a, b) {
 	var bk = b.map(function (d) {
 		return (d - mb) / sb;
 	});
-	return dotp(ak, bk);
+	return (0, _statistic.dotp)(ak, bk);
 }
 
 function correlation_distance(a, b) {

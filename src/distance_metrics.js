@@ -1,3 +1,4 @@
+import {mean, std, corr, dotp, L2_norm} from './statistic';
 /*
 * Similarity/Dissimilarity for Simple Attributes
 */
