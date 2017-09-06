@@ -132,6 +132,7 @@ export function cosine_similarity(a, b){
 }
 
 export function correlation_similarity(a, b){
+	if(a.length <= 1) return 0;
 	var ma = mean(a);
 	var mb = mean(b);
 	var sa = std(a);
@@ -149,7 +150,7 @@ export function correlation_similarity(a, b){
 	var bk = b.map(function(d){
 		return (d - mb) / sb;
 	});
-	return dotp(ak, bk);
+	return dotp(ak, bk) / (a.length - 1);
 }
 
 export function correlation_distance(a, b){

@@ -3491,6 +3491,7 @@ function cosine_similarity(a, b) {
 }
 
 function correlation_similarity(a, b) {
+	if (a.length <= 1) return 0;
 	var ma = (0, _statistic.mean)(a);
 	var mb = (0, _statistic.mean)(b);
 	var sa = (0, _statistic.std)(a);
@@ -3507,7 +3508,7 @@ function correlation_similarity(a, b) {
 	var bk = b.map(function (d) {
 		return (d - mb) / sb;
 	});
-	return (0, _statistic.dotp)(ak, bk);
+	return (0, _statistic.dotp)(ak, bk) / (a.length - 1);
 }
 
 function correlation_distance(a, b) {
