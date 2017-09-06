@@ -282,12 +282,13 @@ function variance(v) {
 			return d / v.length;
 		});
 	} else {
+		if (v.length <= 1) return 0;
 		m = mean(v);
 		sum = 0;
 		for (i = 0; i < v.length; i++) {
 			sum += (v[i] - m) * (v[i] - m);
 		}
-		return sum / v.length;
+		return sum / (v.length - 1);
 	}
 }
 
